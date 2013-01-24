@@ -1,0 +1,8 @@
+*.py[cod]
+
+# PyDev
+.project
+.pydevproject
+
+# Default build
+build/

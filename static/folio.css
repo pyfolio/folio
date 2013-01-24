@@ -1,0 +1,45 @@
+body { margin: 0; font-size: 14px; font-family: 'Gentium Basic', sans-serif;
+       color: #333; background-color: #CCC; line-height: 20px; }
+
+h1, h2, h3, h4 { margin: 10px 0; line-height: 40px;
+                 font-family: inherit; font-weight: normal; color: inherit; }
+h1 { font-size: 38.5px; }
+h2 { font-size: 31.5px; }
+h3 { font-size: 24.5px; }
+h4 { font-size: 17.5px; }
+
+.clearfix       { *zoom: 1; }
+.clearfix:before,
+.clearfix:after { display: table; line-height: 0; content: ""; }
+.clearfix:after { clear: both; }
+
+.container { padding: 0 20px 20px 20px; }
+
+.header    { padding-left: 20px; }
+.header h1 { font-size: 31.5px; margin-bottom: 0; }
+.header h2 { font-size: 15.5px; margin-top: 0; line-height: 20px; }
+
+.content { width: 100%; }
+
+.content .main        { display: block; float: left; width: 75%; }
+.content .main .inner { background-color: #FFF; border: 1px solid #B3B3B3;
+                        padding: 20px; }
+.content .main p      { text-align: justify; }
+
+.content .sidebar          { display: block; float: left; width: 25%; }
+.content .sidebar h4       { margin: 5px 0; padding: 0 20px;
+                             line-height: 20px; }
+.content .sidebar ul       { margin: 0; padding: 0; }
+.content .sidebar ul li    { list-style-type: none; }
+.content .sidebar a        { color: #333; text-decoration: none;
+                             padding: 5px 20px; display: block; }
+.content .sidebar a:hover  { background-color: rgba(67, 179, 255, 0.5); }
+.content .sidebar a.active { background-color: #B3B3B3;
+                             border-top: 1px solid #999;
+                             border-bottom: 1px solid #D5D5D5; }
+.content .sidebar a small  { display: block; color: #666; font-size: 14px; }
+
+@media (max-width: 767px) {
+  .content .main    { width: 100%; float: none; margin-bottom: 20px; }
+  .content .sidebar { width: 100%; float: none; }
+}
