@@ -9,14 +9,12 @@ import fnmatch
 
 from jinja2 import Environment, FileSystemLoader
 
-def log(message):
+def _log(message):
     print(' * %s' % (message, ))
 
 class Folio(object):
     def __init__(self, build_path='build', template_path='templates',
                  static_path='static', encoding='utf-8', extensions=None):
-        if extensions is None:
-            extensions = []
 
         self.build_path = os.path.abspath(build_path)
         self.template_path = os.path.abspath(template_path)
@@ -26,10 +24,15 @@ class Folio(object):
         self.contexts = {}
         self.builders = [('*.html', self._default_builder)]
 
-        loader = FileSystemLoader(searchpath=template_path)
+        loader = FileSystemLoader(searchpath=self.template_path)
+        if extensions is None:
+            extensions = []
+
         self.env = Environment(loader=loader, extensions=extensions)
 
     def build(self):
+        _log('Building everything...')
+
         def _remove_build():
             if os.path.exists(self.build_path):
                 for path, dirs, files in os.walk(self.build_path,
@@ -57,7 +60,7 @@ class Folio(object):
         if template_name in self.contexts:
             context = self.contexts[template_name](self.env)
 
-        log('Building %s' % (template_name, ))
+        _log('Building %s' % (template_name, ))
 
         for pattern, builder in self.builders:
             if fnmatch.fnmatch(template_name, pattern):
@@ -84,3 +87,49 @@ class Folio(object):
         def wrapper(func):
             self.builders.append((pattern, func))
         return wrapper
+
+    def run(self, host='127.0.0.1', port=8080):
+        import thread
+
+        from SimpleHTTPServer import SimpleHTTPRequestHandler
+        from BaseHTTPServer import HTTPServer
+
+        from watchdog.observers import Observer
+        from watchdog.events import FileSystemEventHandler
+
+        os.chdir(self.build_path)
+
+        def serve():
+            server = HTTPServer((host, port), SimpleHTTPRequestHandler)
+            server.serve_forever()
+
+        _log('Serving at %s:%d' % (host, port))
+
+        thread.start_new_thread(serve, ())
+
+        def watch():
+            def handler(event):
+                if event.is_directory:
+                    return
+
+                template_name = event.src_path[len(self.template_path) + 1:]
+                _log('File "%s" %s' % (template_name, event.event_type))
+                self.build_template(template_name)
+
+            EventHandler = type('EventHandler', (FileSystemEventHandler, ),
+                                {'on_any_event': lambda self, e: handler(e)})
+
+            _log('Watching for changes in "%s"' % (self.template_path, ))
+
+            observer = Observer()
+            observer.schedule(EventHandler(), path=self.template_path,
+                              recursive=True)
+            observer.start()
+            try:
+                while True:
+                    pass
+            except KeyboardInterrupt:
+                observer.stop()
+            observer.join()
+
+        watch()
