@@ -9,6 +9,8 @@ import fnmatch
 
 from jinja2 import Environment, FileSystemLoader
 
+__all__ = ['Folio']
+
 def _log(message):
     print(' * %s' % (message, ))
 
