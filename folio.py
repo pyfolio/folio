@@ -47,11 +47,7 @@ class Folio(object):
         else:
             os.mkdir(self.build_path)
 
-        def _filter_templates(filename):
-            _, tail = os.path.split(filename)
-            return not (tail.startswith('.') or tail.startswith('_'))
-
-        templates = self.env.list_templates(filter_func=_filter_templates)
+        templates = self.env.list_templates(filter_func=self.is_template)
         for template_name in templates:
             self.build_template(template_name)
 
@@ -66,6 +62,10 @@ class Folio(object):
             if fnmatch.fnmatch(template_name, pattern):
                 builder(self.env, template_name, context)
                 break
+
+    def is_template(self, filename):
+        _, tail = os.path.split(filename)
+        return not (tail.startswith('.') or tail.startswith('_'))
 
     def _default_builder(self, env, template_name, context):
         destination = os.path.join(self.build_path, template_name)
@@ -113,7 +113,12 @@ class Folio(object):
                     return
 
                 template_name = event.src_path[len(self.template_path) + 1:]
-                _log('File "%s" %s' % (template_name, event.event_type))
+
+                if not self.is_template(template_name):
+                    return
+
+                _log('Template "%s" %s' % (template_name, event.event_type))
+
                 self.build_template(template_name)
 
             EventHandler = type('EventHandler', (FileSystemEventHandler, ),
