@@ -5,6 +5,7 @@
 
 import os
 import shutil
+import fnmatch
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -25,6 +26,7 @@ class Folio(object):
         loader = FileSystemLoader(searchpath=template_path)
 
         self.contexts = {}
+        self.builders = [('*.html', _default_builder)]
         self.env = Environment(loader=loader)
 
     def _remove_build(self):
@@ -72,28 +74,40 @@ class Folio(object):
             self.build_template(template_name)
 
     def build_template(self, template_name):
-        head, tail = os.path.split(template_name)
-        if head:
-            head = os.path.join(self.build_path, head)
-            if not os.path.exists(head):
-                os.makedirs(head)
-
         context = {}
         if template_name in self.contexts:
             context = self.contexts[template_name](self.env)
 
         log('Building %s' % (template_name, ))
 
-        destination = os.path.join(self.build_path, template_name)
-        template = self.env.get_template(template_name)
-        template.stream(**context).dump(destination, encoding=self.encoding)
+        for pattern, builder in self.builders:
+            if fnmatch.fnmatch(template_name, pattern):
+                builder(self.env, template_name, context, self.build_path,
+                        self.encoding)
+                break
 
     def context(self, template_name):
         def wrapper(func):
             self.contexts[template_name] = func
         return wrapper
 
+    def builder(self, pattern):
+        def wrapper(func):
+            self.builders.append((pattern, func))
+        return wrapper
+
 def _filter_templates(filename):
     _, tail = os.path.split(filename)
     nrender = tail.startswith('.') or tail.startswith('_')
     return not nrender
+
+def _default_builder(env, template_name, context, build_path, encoding):
+    destination = os.path.join(build_path, template_name)
+    head, tail = os.path.split(template_name)
+    if head:
+        head = os.path.join(build_path, head)
+        if not os.path.exists(head):
+            os.makedirs(head)
+
+    template = env.get_template(template_name)
+    template.stream(**context).dump(destination, encoding=encoding)
