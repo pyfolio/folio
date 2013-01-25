@@ -1,0 +1,9 @@
+{% extends '_base.html' %}
+
+{% if title is defined %}
+  {% block title %}{{ title[0] }} &middot; {{ super() }}{% endblock %}
+{% endif %}
+
+{% block body %}
+{{ content }}
+{% endblock %}

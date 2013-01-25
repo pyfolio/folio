@@ -1,9 +1,10 @@
 from folio import Folio
-from os.path import exists
+from folio_markdown import MarkdownExtension
 
 folio = Folio()
 
+MarkdownExtension(folio, template_base='_markdown.html', extensions=['*.md'])
+
 if __name__ == '__main__':
-    if not exists(folio.build_path):
-        folio.build()
+    folio.build()
     folio.run()
