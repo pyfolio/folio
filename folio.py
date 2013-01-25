@@ -17,7 +17,10 @@ def log(message):
 
 class Folio(object):
     def __init__(self, build_path='build', template_path='templates',
-                 static_path='static', encoding='utf-8'):
+                 static_path='static', encoding='utf-8', extensions=None):
+        if extensions is None:
+            extensions = []
+
         self.build_path = os.path.abspath(build_path)
         self.template_path = os.path.abspath(template_path)
         self.static_path = os.path.abspath(static_path)
@@ -27,7 +30,7 @@ class Folio(object):
 
         self.contexts = {}
         self.builders = [('*.html', _default_builder)]
-        self.env = Environment(loader=loader)
+        self.env = Environment(loader=loader, extensions=extensions)
 
     def _remove_build(self):
         if os.path.exists(self.build_path):
