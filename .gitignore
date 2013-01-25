@@ -1,6 +1,7 @@
 *.py[cod]
 
 # PyDev
+.settings/
 .project
 .pydevproject
 

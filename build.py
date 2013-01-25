@@ -1,28 +1,11 @@
-# -*- coding: utf-8 -*-
-import folio
-import os
+from folio import Folio
 
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+folio = Folio()
 
-template_path = os.path.abspath('templates')
+@folio.context('index.html')
+def index(env):
+    return {'title': 'Hello World'}
 
 if __name__ == '__main__':
-    folio.build(template_path=template_path)
-    
-    def handler(self, event):
-        if not event.is_directory:
-            print '%s %s' % (event.src_path, event.event_type)
-            folio.build(template_path=template_path)
-    
-    EventHandler = type('EventHandler', (FileSystemEventHandler, ),
-                        {'on_any_event': handler})
-    observer = Observer()
-    observer.schedule(EventHandler(), path=template_path, recursive=True)
-    observer.start()
-    try:
-        while True:
-            pass
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    folio.build()
+    folio.watch()

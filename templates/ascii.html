@@ -1,13 +1,15 @@
 {% extends '_base.html' %}
 
+{% block title %}ASCII &middot; {{ super() }}{% endblock %}
+
 {% block body %}
 <pre>
   Ñ ñ Ç ç ß
   À Á Æ È É Ì Í Î Ò Ó Ù Ú
   à á æ è é ì í î ò ó ù ú
+  ª º ° ¹ ² ³ ¼ ½ ¾
   ¿ ¡ µ ¶ · « »
   ¢ £ ¥ € © ®
   ± ÷ × Ø ø
-  ª º ° ¹ ² ³ ¼ ½ ¾
 </pre>
 {% endblock %}

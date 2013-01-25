@@ -8,6 +8,8 @@ h2 { font-size: 31.5px; }
 h3 { font-size: 24.5px; }
 h4 { font-size: 17.5px; }
 
+p { margin: 0 0 10px; }
+
 .clearfix       { *zoom: 1; }
 .clearfix:before,
 .clearfix:after { display: table; line-height: 0; content: ""; }
@@ -24,6 +26,9 @@ h4 { font-size: 17.5px; }
 .content .main        { display: block; float: left; width: 75%; }
 .content .main .inner { background-color: #FFF; border: 1px solid #B3B3B3;
                         padding: 20px; }
+.content .main h1     { font-size: 24.5px; margin: 0 0 10px; }
+.content .main h2     { font-size: 20.5px; }
+.content .main h3     { font-size: 17.5px; }
 .content .main p      { text-align: justify; }
 
 .content .sidebar          { display: block; float: left; width: 25%; }
