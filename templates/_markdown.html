@@ -6,4 +6,5 @@
 
 {% block body %}
 {{ content }}
+{% if date is defined %}<address>{{ date[0] }}</address>{% endif %}
 {% endblock %}

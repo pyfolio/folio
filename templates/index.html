@@ -1,10 +1,12 @@
 {% extends '_base.html' %}
 
 {% block body %}
-<h1>Articles</h1>
-<ul>
+<p>Hello. This is the personal website of JM.</p>
+<h2>Articles</h2>
+<dl class="horizontal clearfix">
 {% for article in articles %}
-  <li><a href="/{{ article.path }}">{{ article.meta.title[0] }}</a></li>
+  <dt>{{ article.meta.date[0] }}</dt>
+  <dd><a href="/{{ article.path }}">{{ article.meta.title[0] }}</a></dd>
 {% endfor %}
-</ul>
+</dl>
 {% endblock %}

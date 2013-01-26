@@ -1,4 +1,5 @@
 Title: Hello World
+Date: 2012-01-25
 
 Hello World
 ===========
