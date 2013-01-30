@@ -34,7 +34,7 @@ class Markdown():
         self.markdown = markdown.Markdown(extensions=markdown_extensions)
 
     def markdown_builder(self, env, template_name, context):
-        head, tail = os.path.split(template_name)
+        head, _ = os.path.split(template_name)
         if head:
             dirname = os.path.join(self.folio.build_path, head)
             if not os.path.exists(dirname):
@@ -52,7 +52,7 @@ class Markdown():
         template.stream(**context).dump(dest, encoding=self.folio.encoding)
 
     def translate_template_name(self, template_name):
-        name, ext = os.path.splitext(template_name)
+        name, _ = os.path.splitext(template_name)
         return '.'.join([name, 'html'])
 
     def parse(self, template_name):

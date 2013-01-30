@@ -37,10 +37,10 @@ class Folio(object):
 
         def _remove_build():
             if os.path.exists(self.build_path):
-                for path, dirs, files in os.walk(self.build_path,
+                for path, _, files in os.walk(self.build_path,
                                                  topdown=False):
-                    for file in files:
-                        os.remove(os.path.join(path, file))
+                    for f in files:
+                        os.remove(os.path.join(path, f))
                     os.rmdir(path)
         _remove_build()
 
@@ -70,7 +70,7 @@ class Folio(object):
         return not (tail.startswith('.') or tail.startswith('_'))
 
     def _default_builder(self, env, template_name, context):
-        head, tail = os.path.split(template_name)
+        head, _ = os.path.split(template_name)
         if head:
             head = os.path.join(self.build_path, head)
             if not os.path.exists(head):
