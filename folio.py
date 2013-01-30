@@ -60,7 +60,7 @@ class Folio(object):
 
         _log('Building %s' % (template_name, ))
 
-        for pattern, builder in self.builders:
+        for pattern, builder in self.builders.__reversed__():
             if fnmatch.fnmatch(template_name, pattern):
                 builder(self.env, template_name, context)
                 break
@@ -70,13 +70,13 @@ class Folio(object):
         return not (tail.startswith('.') or tail.startswith('_'))
 
     def _default_builder(self, env, template_name, context):
-        destination = os.path.join(self.build_path, template_name)
         head, tail = os.path.split(template_name)
         if head:
             head = os.path.join(self.build_path, head)
             if not os.path.exists(head):
                 os.makedirs(head)
 
+        destination = os.path.join(self.build_path, template_name)
         template = env.get_template(template_name)
         template.stream(**context).dump(destination, encoding=self.encoding)
 

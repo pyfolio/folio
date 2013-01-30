@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+    Folio extension that uses python markdown to parse templates.
+"""
+
 from __future__ import with_statement
 
 import os
@@ -5,7 +10,7 @@ import markdown
 
 __all__ = ['MarkdownExtension']
 
-class MarkdownExtension():
+class Markdown():
     def __init__(self, folio, template_base=None, template_extensions=None,
                  markdown_extensions=None):
         if template_base is None:
@@ -18,9 +23,9 @@ class MarkdownExtension():
         self.folio = folio
         self.template_base = template_base
 
-        template_base = os.path.join(self.folio.template_path,
-                                     self.template_base)
-        if not os.path.exists(template_base):
+        template_base_fullpath = os.path.join(self.folio.template_path,
+                                              self.template_base)
+        if not os.path.exists(template_base_fullpath):
             raise TypeError('Template base "%s" not found' % (template_base, ))
 
         for extension in template_extensions:
@@ -30,7 +35,6 @@ class MarkdownExtension():
 
     def markdown_builder(self, env, template_name, context):
         head, tail = os.path.split(template_name)
-
         if head:
             dirname = os.path.join(self.folio.build_path, head)
             if not os.path.exists(dirname):
@@ -42,11 +46,10 @@ class MarkdownExtension():
         context.update(meta)
 
         dest_name = self.translate_template_name(template_name)
-        destination = os.path.join(self.folio.build_path, dest_name)
+        dest = os.path.join(self.folio.build_path, dest_name)
 
         template = env.get_template(self.template_base)
-        template.stream(**context).dump(destination,
-                                        encoding=self.folio.encoding)
+        template.stream(**context).dump(dest, encoding=self.folio.encoding)
 
     def translate_template_name(self, template_name):
         name, ext = os.path.splitext(template_name)
@@ -54,9 +57,9 @@ class MarkdownExtension():
 
     def parse(self, template_name):
         with open(os.path.join(self.folio.template_path, template_name)) as f:
-            content = f.read()
+            markdown = f.read()
 
-        markdown = self.markdown.convert(content)
+        content = self.markdown.convert(markdown)
         meta = self.markdown.Meta
 
-        return (markdown, meta)
+        return (content, meta)

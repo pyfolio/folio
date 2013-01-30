@@ -1,10 +1,10 @@
 import os
 
 from folio import Folio
-from folio_markdown import MarkdownExtension
+from folio_markdown import Markdown
 
 folio = Folio()
-md = MarkdownExtension(folio)
+md = Markdown(folio)
 
 @folio.context('index.html')
 def index(env):
