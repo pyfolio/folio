@@ -10,6 +10,7 @@ import fnmatch
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
+__version__ = '0.1-dev'
 
 def _log(message):
     print(' * %s' % (message, ))
