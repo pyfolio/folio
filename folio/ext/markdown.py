@@ -8,9 +8,9 @@ from __future__ import with_statement
 import os
 import markdown
 
-__all__ = ['MarkdownExtension']
+__all__ = ['Markdown']
 
-class Markdown():
+class Markdown(object):
     def __init__(self, folio, template_base=None, template_extensions=None,
                  markdown_extensions=None):
         if template_base is None:
