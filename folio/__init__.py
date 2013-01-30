@@ -6,40 +6,50 @@
 import os
 import shutil
 import fnmatch
+import logging
 
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
 __version__ = '0.1-dev'
 
-def _log(message):
-    print(' * %s' % (message, ))
-
 class Folio(object):
-    def __init__(self, build_path='build', template_path='templates',
-                 static_path='static', encoding='utf-8', extensions=None):
+    def __init__(self, name, build_path='build', template_path='templates',
+                 static_path='static', encoding='utf-8',
+                 jinja_extensions=()):
 
+        #: The name of the project. It's used for logging and can improve
+        #: debugging information.
+        self.name = name
+
+        #: The project logger, an instance of the :class: `logging.Logger`.
+        self.logger = logging.getLogger(self.name)
+
+        #: The destination directory to copy the static content and create the
+        #: builded templates.
         self.build_path = os.path.abspath(build_path)
+
+        #: The source directory from where the templates will be parsed.
         self.template_path = os.path.abspath(template_path)
+
+        #: It contains files that will be copied at first to the build
+        #: directory unmodified.
         self.static_path = os.path.abspath(static_path)
+
+        #: The source encoding for templates. Default to utf-8.
         self.encoding = encoding
 
         self.contexts = {}
         self.builders = [('*.html', self._default_builder)]
 
         loader = FileSystemLoader(searchpath=self.template_path)
-        if extensions is None:
-            extensions = []
 
-        self.env = Environment(loader=loader, extensions=extensions)
+        self.env = Environment(loader=loader, extensions=jinja_extensions)
 
     def build(self):
-        _log('Building everything...')
-
         def _remove_build():
             if os.path.exists(self.build_path):
-                for path, _, files in os.walk(self.build_path,
-                                                 topdown=False):
+                for path, _, files in os.walk(self.build_path, topdown=False):
                     for f in files:
                         os.remove(os.path.join(path, f))
                     os.rmdir(path)
@@ -59,7 +69,7 @@ class Folio(object):
         if template_name in self.contexts:
             context = self.contexts[template_name](self.env)
 
-        _log('Building %s' % (template_name, ))
+        self.logger.info('Building %s', template_name)
 
         for pattern, builder in self.builders.__reversed__():
             if fnmatch.fnmatch(template_name, pattern):
@@ -106,7 +116,7 @@ class Folio(object):
             server = HTTPServer((host, port), SimpleHTTPRequestHandler)
             server.serve_forever()
 
-        _log('Serving at %s:%d' % (host, port))
+        self.logger.info('Serving at %s:%d', host, port)
 
         thread.start_new_thread(serve, ())
 
@@ -120,14 +130,11 @@ class Folio(object):
                 if not self.is_template(template_name):
                     return
 
-                _log('Template "%s" %s' % (template_name, event.event_type))
-
+                self.logger.info('File %s %s', template_name, event.event_type)
                 self.build_template(template_name)
 
             EventHandler = type('EventHandler', (FileSystemEventHandler, ),
                                 {'on_any_event': lambda self, e: handler(e)})
-
-            _log('Watching for changes in "%s"' % (self.template_path, ))
 
             observer = Observer()
             observer.schedule(EventHandler(), path=self.template_path,
