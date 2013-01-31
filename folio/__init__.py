@@ -14,6 +14,19 @@ __all__ = ['Folio']
 __version__ = '0.1-dev'
 
 class Folio(object):
+    """
+    :param name: Projects's name.
+    :param build_path: Destination directory where the final HTML will be
+                       generated. Defaults to ``'build'`` in the project's root.
+    :param template_path: Source directory that contains the templates to be
+                          processed. Defaults to ``'templates'`` in the
+                          project's root.
+    :param static_path: Source for the static content that will be copied to
+                        the build directory as first action. Defaults to
+                        ``'static'`` in the project's root.
+    :param encoding: The template's encoding. Defaults to utf-8.
+    :param jinja_extensions: Jinja2 extensions.
+    """
     def __init__(self, name, build_path='build', template_path='templates',
                  static_path='static', encoding='utf-8',
                  jinja_extensions=()):
@@ -39,7 +52,29 @@ class Folio(object):
         #: The source encoding for templates. Default to utf-8.
         self.encoding = encoding
 
+        #: The context generators per template. The template name is store as
+        #: key and the callback as value. It will call the function, with the
+        #: jinja2 environment as first parameters, for the template in the
+        #: build process. The function must return a dictionary to be used in
+        #: the template.
+        #:
+        #: Context functions are registered like this::
+        #:
+        #:     @proj.context('index.html')
+        #:     def index_context(jinja2_env):
+        #:         return {'files': jinja2_env.list_templates(),
+        #:                 'author': 'Me'}
+        #:
+        #: Then in the template you could use it as normal variables.
         self.contexts = {}
+
+        #: Builders are the core of folio, this will link a filename match with
+        #: a build function that will be responsible of translating templates
+        #: into final HTML files.
+        #:
+        #: The default builder is given, this will treat all *.html files as
+        #: jinja2 templates and process them, generating the same template name
+        #: as output file in the build directory.
         self.builders = [('*.html', self._default_builder)]
 
         loader = FileSystemLoader(searchpath=self.template_path)
