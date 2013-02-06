@@ -1,0 +1,14 @@
+Folio
+=====
+
+Folio is an static website generator using jinja2 template engine.
+
+Dependencies
+------------
+
+ * Jinja2: Templating system.
+
+License
+-------
+
+See LICENSE.
