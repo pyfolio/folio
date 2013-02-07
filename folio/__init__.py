@@ -106,6 +106,11 @@ class Folio(object):
         # a dot or an underscore.
         templates = self.list_templates()
 
+        # A set of builded files. This will be returned by the method so you
+        # could do something with the new modified templates. The format is a
+        # touple with template name, source path, destination path
+        builded = set()
+
         for template_name in templates:
             src = os.path.join(self.template_path, template_name)
             dst = os.path.join(self.build_path,
@@ -124,14 +129,24 @@ class Folio(object):
                 self.logger.info('File %s skipped', template_name)
                 continue
 
-            self.build_template(template_name)
+            rv = self.build_template(template_name)
+
+            if rv:
+                builded.add((template_name, src, dst))
+
+        return builded
 
     def build_template(self, template_name):
-        """Build a template with it's corresponding builder. If there are no
-        builder for the template name, an RuntimeError will be raised. The
-        builder is responsible of generating the HTML file in the destination
-        path. The builder will be called with an instance of `jinja2.Template`,
-        a dictionary with the context, the source and destination paths and the
+        """Build a template with it's corresponding builder. Returns a True if
+        the builder was successfully executed, False if there are no builders
+        for the template.
+
+        The builder is responsible of generating the HTML file in the
+        destination path. It won't be checked for that the file was really
+        created.
+
+        The builder will be called with an instance of `jinja2.Template`, a
+        dictionary with the context, the source and destination paths and the
         output encoding.
 
         :param template_name: The template name to build.
@@ -139,7 +154,7 @@ class Folio(object):
         builder = self.get_builder(template_name)
 
         if not callable(builder):
-            raise RuntimeError('Builder must be a callable')
+            return False
 
         self.logger.info('Building %s', template_name)
 
@@ -163,7 +178,12 @@ class Folio(object):
         dst = os.path.join(self.build_path,
                            self.translate_template_name(template_name))
 
+        # Call the real builder. For the moment, we don't care what the retuned
+        # values is, if any.
         builder(template, context, src, dst, self.encoding)
+
+        # If no exception was raised, we assume that the build was made.
+        return True
 
     def add_builder(self, pattern, builder):
         """Adds a new builder related with the given file pattern. If the
