@@ -75,7 +75,7 @@ class Folio(object):
         #: The default builder is given, this will treat all *.html files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
-        self.builders = [('*.html', self._default_builder)]
+        self.builders = [('*.html', _default_builder)]
 
         #: The jinja environment is used to make a list of the templates, and
         #: it's used by the builders to dump output files.
@@ -109,14 +109,88 @@ class Folio(object):
             self.build_template(template_name)
 
     def build_template(self, template_name):
-        context = self.get_context(template_name)
+        """Build a template with it's corresponding builder. If there are no
+        builder for the template name, an RuntimeError will be raised. This
+        will create the path to the destination file. The builder is
+        responsible of generating the HTML file in the destination path. The
+        builder will be called with an instance of `jinja2.Template`, a
+        dictionary with the context, the source and destination paths and the
+        output encoding.
+
+        :param template_name: The template name to build.
+        """
+        builder = self.get_builder(template_name)
+
+        if not callable(builder):
+            raise RuntimeError('Builder must be a callable')
 
         self.logger.info('Building %s', template_name)
 
+        #: Load a template from Jinja2. This will be an instance of `Template`.
+        template = self.env.get_template(template_name)
+
+        #: Retrieve the context. Will call all the context functions and merge
+        #: the results together. If no context are found, an empty dictionary
+        #: is returned.
+        context = self.get_context(template_name)
+
+        #: This is the fullpath of the template. This is usefull if the file is
+        #: not actually a jinja template but another format that you need to
+        #: open and process.
+        src = os.path.join(self.template_path, template_name)
+
+        #: This is the fullpath destination. Probably the builders have to
+        #: choose the transformation of the template name into destination. But
+        #: for the moment it's the same as the template name with HTML
+        #: extension.
+        dst = os.path.join(self.build_path,
+                           self.translate_template_name(template_name))
+
+        # If the destination directory doesn't exists, create it.
+        dstdir = os.path.join(self.build_path, os.path.dirname(dst))
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        builder(template, context, src, dst, self.encoding)
+
+    def add_builder(self, pattern, builder):
+        """Adds a new builder related with the given file pattern. If the
+        pattern is a iterable, will add several times the same builder.
+
+        :param pattern: One or more file patterns.
+        :param builder: The builder to be related with the file pattern(s).
+        """
+        if not callable(builder):
+            raise TypeError('Invalid builder. Must be a callable.')
+        if isinstance(pattern, basestring):
+            self.builders.append((pattern, builder))
+        else:
+            try:
+                iterator = iter(pattern)
+            except TypeError:
+                raise TypeError('The pattern is not a string, nor iterable.')
+            for item in iterator:
+                self.builders.append((item, builder))
+
+    def get_builder(self, template_name):
+        """Returns the builder for the given template name or None if there are
+        not related builders.
+
+        :param template_name: The template name to lookup the builder for.
+        """
         for pattern, builder in reversed(self.builders):
             if fnmatch.fnmatch(template_name, pattern):
-                builder(self.env, template_name, context)
-                break
+                return builder
+        return None
+
+    def translate_template_name(self, template_name):
+        """Translate the template name to a destination filename. For the
+        moment this will return the same filename with HTML extension.
+
+        :param template_name: The input template name.
+        """
+        name, _ = os.path.splitext(template_name)
+        return '.'.join([name, 'html'])
 
     def is_template(self, filename):
         """Return true if a file is considered a template. The default
@@ -129,17 +203,6 @@ class Folio(object):
         ignored = tail.startswith('.') or tail.startswith('_')
         return not ignored
 
-    def _default_builder(self, env, template_name, context):
-        head, _ = os.path.split(template_name)
-        if head:
-            head = os.path.join(self.build_path, head)
-            if not os.path.exists(head):
-                os.makedirs(head)
-
-        destination = os.path.join(self.build_path, template_name)
-        template = env.get_template(template_name)
-        template.stream(**context).dump(destination, encoding=self.encoding)
-
     def add_context(self, template_name, context):
         """Add a new context to the given template name. Could add several
         contexts to the same template, this will be merged into one.
@@ -149,6 +212,8 @@ class Folio(object):
                         jinja environment as first parameter and return the
                         context for the template.
         """
+        if not self.is_template(template_name):
+            raise ValueError('Invalid template')
         if not template_name in self.contexts:
             self.contexts[template_name] = []
         self.contexts[template_name].append(context)
@@ -204,6 +269,7 @@ class Folio(object):
         :param host: The hostname to listen on.
         :param port: The port of the server.
         """
+        import time
         import thread
 
         from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -212,7 +278,13 @@ class Folio(object):
         from watchdog.observers import Observer
         from watchdog.events import FileSystemEventHandler
 
+        # Change the current directory to the build path, as the simple handler
+        # will serve files from the pwd.
         os.chdir(self.build_path)
+
+        # Configure the logger to output all debug information to the stdout.
+        self.logger.addHandler(logging.StreamHandler())
+        self.logger.setLevel(logging.DEBUG)
 
         def serve():
             server = HTTPServer((host, port), SimpleHTTPRequestHandler)
@@ -220,33 +292,39 @@ class Folio(object):
 
         self.logger.info('Serving at %s:%d', host, port)
 
+        # Serve files in a thread so we can watch for modified files at the
+        # same time.
         thread.start_new_thread(serve, ())
 
-        def watch():
-            def handler(event):
-                if event.is_directory:
-                    return
+        def handler(event):
+            if event.is_directory:
+                return
 
-                template_name = event.src_path[len(self.template_path) + 1:]
+            template_name = event.src_path[len(self.template_path) + 1:]
 
-                if not self.is_template(template_name):
-                    return
+            if not self.is_template(template_name):
+                return
 
-                self.logger.info('File %s %s', template_name, event.event_type)
-                self.build_template(template_name)
+            self.logger.info('File %s %s', template_name, event.event_type)
+            self.build_template(template_name)
 
-            EventHandler = type('EventHandler', (FileSystemEventHandler, ),
-                                {'on_any_event': lambda self, e: handler(e)})
+        # An event handler that will call `handler` function on any event: this
+        # could be created, deleted, modified, moved.
+        EventHandler = type('EventHandler', (FileSystemEventHandler, ),
+                            {'on_any_event': lambda self, e: handler(e)})
 
-            observer = Observer()
-            observer.schedule(EventHandler(), path=self.template_path,
-                              recursive=True)
-            observer.start()
-            try:
-                while True:
-                    pass
-            except KeyboardInterrupt:
-                observer.stop()
-            observer.join()
+        # An observer that will wait for changes in the template path.
+        observer = Observer()
+        observer.schedule(EventHandler(), path=self.template_path,
+                          recursive=True)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
 
-        watch()
+
+def _default_builder(template, context, src, dst, encoding):
+    template.stream(**context).dump(dst, encoding=encoding)
