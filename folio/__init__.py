@@ -153,6 +153,11 @@ class Folio(object):
         return wrapper
 
     def run(self, host='127.0.0.1', port=8080):
+        """Runs the project on a local development server.
+
+        :param host: The hostname to listen on.
+        :param port: The port of the server.
+        """
         import thread
 
         from SimpleHTTPServer import SimpleHTTPRequestHandler
