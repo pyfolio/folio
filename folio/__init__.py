@@ -75,7 +75,7 @@ class Folio(object):
         #: The default builder is given, this will treat all *.html files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
-        self.builders = [('*.html', _default_builder)]
+        self.builders = [('*.html', _template_builder)]
 
         #: The jinja environment is used to make a list of the templates, and
         #: it's used by the builders to dump output files.
@@ -362,5 +362,5 @@ class Folio(object):
         observer.join()
 
 
-def _default_builder(template, context, src, dst, encoding):
+def _template_builder(template, context, src, dst, encoding):
     template.stream(**context).dump(dst, encoding=encoding)
