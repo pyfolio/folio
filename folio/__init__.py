@@ -109,13 +109,11 @@ class Folio(object):
             self.build_template(template_name)
 
     def build_template(self, template_name):
-        context = {}
-        if template_name in self.contexts:
-            context = self.contexts[template_name](self.env)
+        context = self.get_context(template_name)
 
         self.logger.info('Building %s', template_name)
 
-        for pattern, builder in self.builders.__reversed__():
+        for pattern, builder in reversed(self.builders):
             if fnmatch.fnmatch(template_name, pattern):
                 builder(self.env, template_name, context)
                 break
@@ -142,14 +140,62 @@ class Folio(object):
         template = env.get_template(template_name)
         template.stream(**context).dump(destination, encoding=self.encoding)
 
-    def context(self, template_name):
-        def wrapper(func):
-            self.contexts[template_name] = func
-        return wrapper
+    def add_context(self, template_name, context):
+        """Add a new context to the given template name. Could add several
+        contexts to the same template, this will be merged into one.
 
-    def builder(self, pattern):
+        :param template_name: The template name to add the context on.
+        :param context: The context itself or a function that will accept the
+                        jinja environment as first parameter and return the
+                        context for the template.
+        """
+        if not template_name in self.contexts:
+            self.contexts[template_name] = []
+        self.contexts[template_name].append(context)
+
+    def get_context(self, template_name):
+        """Returns a context for the given template. If more that one context
+        are assigned to the template name, there are going to be merged all
+        together in the order that has been added. If a context is a callable
+        it will be called with the jinja environment as first argument.
+
+        A basic example::
+
+            proj.add_context('index.html', {'name': 'Juan', 'files': [])
+            proj.add_context('index.html', lambda env: {'name': 'Flor'})
+            proj.get_context('index.html')
+            # Returns {'name': 'Flor', 'files': [])
+
+        :param template_name: The template name to retrieve the context.
+        """
+        context = {}
+        if not template_name in self.contexts:
+            return context
+        for ctx in self.contexts[template_name]:
+            if callable(ctx):
+                ctx = ctx(self.env)
+            context.update(ctx)
+        return context
+
+    def context(self, template_name):
+        """A decorator that is used to register a context function for a given
+        template. This make the same thing as the method `add_context` passed
+        with a function.
+
+        A basic example::
+
+            @proj.context('articles/index.html')
+            def articles_context(env):
+                return {'articles': [
+                    ('2012-12-31', 'Happy New Year', 'articles/2013.html'),
+                    ('2012-10-11', 'Hello World', 'articles/helloworld.html')
+                ]}
+
+        :param template_name: The template name to make a context.
+        """
         def wrapper(func):
-            self.builders.append((pattern, func))
+            self.add_context(template_name, func)
+            return func
         return wrapper
 
     def run(self, host='127.0.0.1', port=8080):
