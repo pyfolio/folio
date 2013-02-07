@@ -16,20 +16,17 @@ __version__ = '0.1-dev'
 class Folio(object):
     """
     :param name: Projects's name.
+    :param source_path: Source directory that contains the templates to be
+                        processed and the static files to be copied to the
+                        build directory. Defaults to ``'src'`` in the project's
+                        root.
     :param build_path: Destination directory where the final HTML will be
                        generated. Defaults to ``'build'`` in the project's root.
-    :param template_path: Source directory that contains the templates to be
-                          processed. Defaults to ``'templates'`` in the
-                          project's root.
-    :param static_path: Source for the static content that will be copied to
-                        the build directory as first action. Defaults to
-                        ``'static'`` in the project's root.
     :param encoding: The template's encoding. Defaults to utf-8.
     :param jinja_extensions: Jinja2 extensions.
     """
-    def __init__(self, name, build_path='build', template_path='templates',
-                 static_path='static', encoding='utf-8',
-                 jinja_extensions=()):
+    def __init__(self, name, source_path='src', build_path='build',
+                 encoding='utf-8', jinja_extensions=()):
 
         #: The name of the project. It's used for logging and can improve
         #: debugging information.
@@ -43,11 +40,7 @@ class Folio(object):
         self.build_path = os.path.abspath(build_path)
 
         #: The source directory from where the templates will be parsed.
-        self.template_path = os.path.abspath(template_path)
-
-        #: It contains files that will be copied at first to the build
-        #: directory unmodified.
-        self.static_path = os.path.abspath(static_path)
+        self.source_path = os.path.abspath(source_path)
 
         #: The source encoding for templates. Default to utf-8.
         self.encoding = encoding
@@ -83,7 +76,7 @@ class Folio(object):
 
     def _create_jinja_loader(self):
         """Create a Jinja loader."""
-        return FileSystemLoader(searchpath=self.template_path)
+        return FileSystemLoader(searchpath=self.source_path)
 
     def _create_jinja_environment(self, extensions):
         """Create a Jinja environment."""
@@ -112,7 +105,7 @@ class Folio(object):
         builded = set()
 
         for template_name in templates:
-            src = os.path.join(self.template_path, template_name)
+            src = os.path.join(self.source_path, template_name)
             dst = os.path.join(self.build_path,
                                self.translate_template_name(template_name))
 
@@ -131,8 +124,12 @@ class Folio(object):
 
             rv = self.build_template(template_name)
 
-            if rv:
-                builded.add((template_name, src, dst))
+            if not rv:
+                # If it was not generated, so there is not builder for this
+                # template, will take it as an static file.
+                shutil.copy(src, dst)
+
+            builded.add((template_name, src, dst))
 
         return builded
 
@@ -169,12 +166,10 @@ class Folio(object):
         #: This is the fullpath of the template. This is usefull if the file is
         #: not actually a jinja template but another format that you need to
         #: open and process.
-        src = os.path.join(self.template_path, template_name)
+        src = os.path.join(self.source_path, template_name)
 
         #: This is the fullpath destination. Probably the builders have to
-        #: choose the transformation of the template name into destination. But
-        #: for the moment it's the same as the template name with HTML
-        #: extension.
+        #: choose the transformation of the template name into destination.
         dst = os.path.join(self.build_path,
                            self.translate_template_name(template_name))
 
@@ -217,12 +212,11 @@ class Folio(object):
 
     def translate_template_name(self, template_name):
         """Translate the template name to a destination filename. For the
-        moment this will return the same filename with HTML extension.
+        moment this will return the same filename.
 
         :param template_name: The input template name.
         """
-        name, _ = os.path.splitext(template_name)
-        return '.'.join([name, 'html'])
+        return template_name
 
     def is_template(self, filename):
         """Return true if a file is considered a template. The default
@@ -336,13 +330,15 @@ class Folio(object):
             if event.is_directory:
                 return
 
-            template_name = event.src_path[len(self.template_path) + 1:]
+            # The relative filename.
+            filename = event.src_path[len(self.source_path):] \
+                            .strip(os.path.sep)
 
-            if not self.is_template(template_name):
+            if not self.is_template(filename):
                 return
 
-            self.logger.info('File %s %s', template_name, event.event_type)
-            self.build_template(template_name)
+            self.logger.info('File %s %s', filename, event.event_type)
+            self.build_template(filename)
 
         # An event handler that will call `handler` function on any event: this
         # could be created, deleted, modified, moved.
@@ -351,7 +347,7 @@ class Folio(object):
 
         # An observer that will wait for changes in the template path.
         observer = Observer()
-        observer.schedule(EventHandler(), path=self.template_path,
+        observer.schedule(EventHandler(), path=self.source_path,
                           recursive=True)
         observer.start()
         try:
