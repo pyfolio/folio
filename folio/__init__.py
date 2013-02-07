@@ -86,7 +86,7 @@ class Folio(object):
     def build(self, force=False):
         """Build templates to the build directory.
 
-        :param force: If we force the build, all templates will be regenerated.
+        :param force: If the build is forced, all templates will be regenerated.
                       The default behaviour is to skip the files that hasn't
                       been modified since the last build.
         """
@@ -114,7 +114,7 @@ class Folio(object):
             if not os.path.exists(dstdir):
                 os.makedirs(dstdir)
 
-            # If we are not forcing the build, and the destination file is
+            # If the build is not being forced, and the destination file is
             # already generated and its modification time is newer than the
             # source, it has no new modifications.
             if (not force and os.path.exists(dst)
@@ -173,11 +173,11 @@ class Folio(object):
         dst = os.path.join(self.build_path,
                            self.translate_template_name(template_name))
 
-        # Call the real builder. For the moment, we don't care what the retuned
-        # values is, if any.
+        # Call the real builder. For the moment, don't care what the retuned
+        # value is, if any.
         builder(template, context, src, dst, self.encoding)
 
-        # If no exception was raised, we assume that the build was made.
+        # If no exception was raised, assume that the build was made.
         return True
 
     def add_builder(self, pattern, builder):
@@ -322,8 +322,8 @@ class Folio(object):
 
         self.logger.info('Serving at %s:%d', host, port)
 
-        # Serve files in a thread so we can watch for modified files at the
-        # same time.
+        # Serve files in a thread so can watch for modified files at the same
+        # time.
         thread.start_new_thread(serve, ())
 
         def handler(event):
