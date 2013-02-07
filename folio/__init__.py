@@ -77,9 +77,18 @@ class Folio(object):
         #: as output file in the build directory.
         self.builders = [('*.html', self._default_builder)]
 
-        loader = FileSystemLoader(searchpath=self.template_path)
+        #: The jinja environment is used to make a list of the templates, and
+        #: it's used by the builders to dump output files.
+        self.env = self._create_jinja_environment(jinja_extensions)
 
-        self.env = Environment(loader=loader, extensions=jinja_extensions)
+    def _create_jinja_loader(self):
+        """Create a Jinja loader."""
+        return FileSystemLoader(searchpath=self.template_path)
+
+    def _create_jinja_environment(self, extensions):
+        """Create a Jinja environment."""
+        return Environment(loader=self._create_jinja_loader(),
+                           extensions=extensions)
 
     def build(self):
         def _remove_build():
