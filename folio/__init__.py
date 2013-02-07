@@ -121,8 +121,15 @@ class Folio(object):
                 break
 
     def is_template(self, filename):
+        """Return true if a file is considered a template. The default
+        behaviour is to ignore all hidden files and the ones that start with
+        and underscore.
+
+        :param filename: The (possible) template filename.
+        """
         _, tail = os.path.split(filename)
-        return not (tail.startswith('.') or tail.startswith('_'))
+        ignored = tail.startswith('.') or tail.startswith('_')
+        return not ignored
 
     def _default_builder(self, env, template_name, context):
         head, _ = os.path.split(template_name)
