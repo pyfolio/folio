@@ -90,31 +90,48 @@ class Folio(object):
         return Environment(loader=self._create_jinja_loader(),
                            extensions=extensions)
 
-    def build(self):
-        def _remove_build():
-            if os.path.exists(self.build_path):
-                for path, _, files in os.walk(self.build_path, topdown=False):
-                    for f in files:
-                        os.remove(os.path.join(path, f))
-                    os.rmdir(path)
-        _remove_build()
+    def build(self, force=False):
+        """Build templates to the build directory.
 
-        if os.path.exists(self.static_path):
-            shutil.copytree(self.static_path, self.build_path)
-        else:
+        :param force: If we force the build, all templates will be regenerated.
+                      The default behaviour is to skip the files that hasn't
+                      been modified since the last build.
+        """
+        # If the build directory does exits, create it.
+        if not os.path.exists(self.build_path):
             os.mkdir(self.build_path)
 
-        templates = self.env.list_templates(filter_func=self.is_template)
+        # Get a list of the templates to be builded. For the moment is all the
+        # files in the templates directory, except for the ones that start with
+        # a dot or an underscore.
+        templates = self.list_templates()
+
         for template_name in templates:
+            src = os.path.join(self.template_path, template_name)
+            dst = os.path.join(self.build_path,
+                               self.translate_template_name(template_name))
+
+            # If the destination directory doesn't exists, create it.
+            dstdir = os.path.join(self.build_path, os.path.dirname(dst))
+            if not os.path.exists(dstdir):
+                os.makedirs(dstdir)
+
+            # If we are not forcing the build, and the destination file is
+            # already generated and its modification time is newer than the
+            # source, it has no new modifications.
+            if (not force and os.path.exists(dst)
+                and os.path.getmtime(dst) >= os.path.getmtime(src)):
+                self.logger.info('File %s skipped', template_name)
+                continue
+
             self.build_template(template_name)
 
     def build_template(self, template_name):
         """Build a template with it's corresponding builder. If there are no
-        builder for the template name, an RuntimeError will be raised. This
-        will create the path to the destination file. The builder is
-        responsible of generating the HTML file in the destination path. The
-        builder will be called with an instance of `jinja2.Template`, a
-        dictionary with the context, the source and destination paths and the
+        builder for the template name, an RuntimeError will be raised. The
+        builder is responsible of generating the HTML file in the destination
+        path. The builder will be called with an instance of `jinja2.Template`,
+        a dictionary with the context, the source and destination paths and the
         output encoding.
 
         :param template_name: The template name to build.
@@ -145,11 +162,6 @@ class Folio(object):
         #: extension.
         dst = os.path.join(self.build_path,
                            self.translate_template_name(template_name))
-
-        # If the destination directory doesn't exists, create it.
-        dstdir = os.path.join(self.build_path, os.path.dirname(dst))
-        if not os.path.exists(dstdir):
-            os.makedirs(dstdir)
 
         builder(template, context, src, dst, self.encoding)
 
@@ -202,6 +214,10 @@ class Folio(object):
         _, tail = os.path.split(filename)
         ignored = tail.startswith('.') or tail.startswith('_')
         return not ignored
+
+    def list_templates(self):
+        """Returns a list of templates."""
+        return self.env.list_templates(filter_func=self.is_template)
 
     def add_context(self, template_name, context):
         """Add a new context to the given template name. Could add several
