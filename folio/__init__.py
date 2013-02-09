@@ -68,7 +68,7 @@ class Folio(object):
         #: The default builder is given, this will treat all *.html files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
-        self.builders = [('*.html', _template_builder)]
+        self.builders = [('*', _static_builder), ('*.html', _template_builder)]
 
         #: The jinja environment is used to make a list of the templates, and
         #: it's used by the builders to dump output files.
@@ -105,80 +105,75 @@ class Folio(object):
         builded = set()
 
         for template_name in templates:
-            src = os.path.join(self.source_path, template_name)
-            dst = os.path.join(self.build_path,
-                               self.translate_template_name(template_name))
+            rv = self.build_template(template_name, force)
 
-            # If the destination directory doesn't exists, create it.
-            dstdir = os.path.join(self.build_path, os.path.dirname(dst))
-            if not os.path.exists(dstdir):
-                os.makedirs(dstdir)
-
-            # If the build is not being forced, and the destination file is
-            # already generated and its modification time is newer than the
-            # source, it has no new modifications.
-            if (not force and os.path.exists(dst)
-                and os.path.getmtime(dst) >= os.path.getmtime(src)):
-                self.logger.info('File %s skipped', template_name)
-                continue
-
-            rv = self.build_template(template_name)
-
-            if not rv:
-                # If it was not generated, so there is not builder for this
-                # template, will take it as an static file.
-                shutil.copy(src, dst)
-
-            builded.add((template_name, src, dst))
+            if rv:
+                # Add the response to the builded list if is not False.
+                builded.add(rv)
 
         return builded
 
-    def build_template(self, template_name):
-        """Build a template with it's corresponding builder. Returns a True if
-        the builder was successfully executed, False if there are no builders
-        for the template.
+    def build_template(self, template_name, force=False):
+        """Build a template with it's corresponding builder.
 
-        The builder is responsible of generating the HTML file in the
+        The builder is responsible of generating the destination file in the
         destination path. It won't be checked for that the file was really
         created.
 
-        The builder will be called with an instance of `jinja2.Template`, a
-        dictionary with the context, the source and destination paths and the
-        output encoding.
+        The builder will be called with the jinja environment, the template
+        name, a dictionary with the context, the source and destination paths
+        and the output encoding.
 
         :param template_name: The template name to build.
+        :param force: If not True, it will not build the template if the
+                      destination already exists, and it was not modified.
         """
-        builder = self.get_builder(template_name)
-
-        if not callable(builder):
-            return False
-
         self.logger.info('Building %s', template_name)
 
-        #: Load a template from Jinja2. This will be an instance of `Template`.
-        template = self.env.get_template(template_name)
-
-        #: Retrieve the context. Will call all the context functions and merge
-        #: the results together. If no context are found, an empty dictionary
-        #: is returned.
-        context = self.get_context(template_name)
+        #: Retrieve the builder for this template, normally this will never be
+        #: empty, because the static builder is as a "catch all".
+        builder = self.get_builder(template_name)
 
         #: This is the fullpath of the template. This is usefull if the file is
         #: not actually a jinja template but another format that you need to
         #: open and process.
         src = os.path.join(self.source_path, template_name)
 
-        #: This is the fullpath destination. Probably the builders have to
-        #: choose the transformation of the template name into destination.
-        dst = os.path.join(self.build_path,
-                           self.translate_template_name(template_name))
+        try:
+            # Maybe the builder is an instance of class and has a method for
+            # translating the template name into the destination name.
+            dstname = builder.translate_template_name(template_name)
+        except AttributeError:
+            dstname = self.translate_template_name(template_name)
+
+        #: This is the fullpath destination.
+        dst = os.path.join(self.build_path, dstname)
+
+        # If the destination directory doesn't exists, create it.
+        dstdir = os.path.join(self.build_path, os.path.dirname(dst))
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        # If the build is not being forced, and the destination file is already
+        # generated and its modification time is newer than the source, it has
+        # no new modifications.
+        if (not force and os.path.exists(dst)
+            and os.path.getmtime(dst) >= os.path.getmtime(src)):
+            self.logger.info('Template %s skipped', template_name)
+            return False
+
+        #: Retrieve the context. Will call all the context functions and merge
+        #: the results together. If no context are found, an empty dictionary
+        #: is returned.
+        context = self.get_context(template_name)
 
         # Call the real builder. For the moment, don't care what the retuned
-        # value is, if any.
-        builder(template, context, src, dst, self.encoding)
+        # value is, if any. But, in case that it return something, we grab it
+        # and return it again.
+        rv = builder(self.env, template_name, context, src, dst, self.encoding)
 
         # If no exception was raised, assume that the build was made.
-        return True
+        return (src, dst, rv)
 
     def add_builder(self, pattern, builder):
         """Adds a new builder related with the given file pattern. If the
@@ -213,6 +208,9 @@ class Folio(object):
     def translate_template_name(self, template_name):
         """Translate the template name to a destination filename. For the
         moment this will return the same filename.
+
+        Because is used by the static builder, this will not try to change the
+        template name extension to HTML.
 
         :param template_name: The input template name.
         """
@@ -338,7 +336,7 @@ class Folio(object):
                 return
 
             self.logger.info('File %s %s', filename, event.event_type)
-            self.build_template(filename)
+            self.build_template(filename, True)
 
         # An event handler that will call `handler` function on any event: this
         # could be created, deleted, modified, moved.
@@ -358,5 +356,10 @@ class Folio(object):
         observer.join()
 
 
-def _template_builder(template, context, src, dst, encoding):
+def _static_builder(env, template_name, context, src, dst, encoding):
+    shutil.copy(src, dst)
+
+
+def _template_builder(env, template_name, context, src, dst, encoding):
+    template = env.get_template(template_name)
     template.stream(**context).dump(dst, encoding=encoding)
