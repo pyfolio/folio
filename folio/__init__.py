@@ -308,10 +308,6 @@ class Folio(object):
         # will serve files from the pwd.
         os.chdir(self.build_path)
 
-        # Configure the logger to output all debug information to the stdout.
-        self.logger.addHandler(logging.StreamHandler())
-        self.logger.setLevel(logging.DEBUG)
-
         def serve():
             server = HTTPServer((host, port), SimpleHTTPRequestHandler)
             server.serve_forever()
