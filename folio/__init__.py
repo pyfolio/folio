@@ -14,7 +14,17 @@ __all__ = ['Folio']
 __version__ = '0.1-dev'
 
 class Folio(object):
-    """
+    """The project. This is the main (and only?) object for creating a Folio.
+
+    The basic example is::
+
+        from folio import Folio
+        proj = Folio(__name__)
+        proj.build()
+
+    You could also call the run method to start a local web server and watch
+    for modified files.
+
     :param name: Projects's name.
     :param source_path: Source directory that contains the templates to be
                         processed and the static files to be copied to the
@@ -297,14 +307,16 @@ class Folio(object):
         :param host: The hostname to listen on.
         :param port: The port of the server.
         """
-        import time
-        import thread
-
         from SimpleHTTPServer import SimpleHTTPRequestHandler
         from BaseHTTPServer import HTTPServer
 
-        from watchdog.observers import Observer
-        from watchdog.events import FileSystemEventHandler
+        watchdog_found = True
+
+        try:
+            from watchdog.observers import Observer
+            from watchdog.events import FileSystemEventHandler
+        except ImportError:
+            watchdog_found = False
 
         # Change the current directory to the build path, as the simple handler
         # will serve files from the pwd.
@@ -320,40 +332,48 @@ class Folio(object):
 
         self.logger.info('Serving at %s:%d', host, port)
 
-        # Serve files in a thread so can watch for modified files at the same
-        # time.
-        thread.start_new_thread(serve, ())
+        if watchdog_found:
+            import time
+            import thread
 
-        def handler(event):
-            if event.is_directory:
-                return
+            # Serve files in a thread so can watch for modified files at the
+            # same time.
+            thread.start_new_thread(serve, ())
 
-            # The relative filename.
-            filename = event.src_path[len(self.source_path):] \
-                            .strip(os.path.sep)
+            def handler(event):
+                if event.is_directory:
+                    return
 
-            if not self.is_template(filename):
-                return
+                # The relative filename.
+                filename = event.src_path[len(self.source_path):] \
+                                .strip(os.path.sep)
 
-            self.logger.info('File %s %s', filename, event.event_type)
-            self.build_template(filename, True)
+                if not self.is_template(filename):
+                    return
 
-        # An event handler that will call `handler` function on any event: this
-        # could be created, deleted, modified, moved.
-        EventHandler = type('EventHandler', (FileSystemEventHandler, ),
-                            {'on_any_event': lambda self, e: handler(e)})
+                self.logger.info('File %s %s', filename, event.event_type)
+                self.build_template(filename, True)
 
-        # An observer that will wait for changes in the template path.
-        observer = Observer()
-        observer.schedule(EventHandler(), path=self.source_path,
-                          recursive=True)
-        observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
+            # An event handler that will call `handler` function on any event.
+            EventHandler = type('EventHandler', (FileSystemEventHandler, ),
+                                {'on_any_event': lambda self, e: handler(e)})
+
+            # An observer that will wait for changes in the template path.
+            observer = Observer()
+            observer.schedule(EventHandler(), path=self.source_path,
+                              recursive=True)
+            observer.start()
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                observer.stop()
+            observer.join()
+        else:
+            try:
+                serve()
+            except KeyboardInterrupt:
+                pass
 
 
 def _static_builder(env, template_name, context, src, dst, encoding):

@@ -7,6 +7,7 @@ Dependencies
 ------------
 
  * Jinja2: Templating system.
+ * Watchdog (optional): Watch for modified files in the local web server.
 
 License
 -------
