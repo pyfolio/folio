@@ -93,13 +93,8 @@ class Folio(object):
         return Environment(loader=self._create_jinja_loader(),
                            extensions=extensions)
 
-    def build(self, force=False):
-        """Build templates to the build directory.
-
-        :param force: If the build is forced, all templates will be regenerated.
-                      The default behaviour is to skip the files that hasn't
-                      been modified since the last build.
-        """
+    def build(self):
+        """Build templates to the build directory."""
         # If the build directory does exits, create it.
         if not os.path.exists(self.build_path):
             os.mkdir(self.build_path)
@@ -111,11 +106,12 @@ class Folio(object):
 
         # A set of builded files. This will be returned by the method so you
         # could do something with the new modified templates. The format is a
-        # touple with template name, source path, destination path
+        # touple with source path, destination path, and the result of the
+        # builder.
         builded = set()
 
         for template_name in templates:
-            rv = self.build_template(template_name, force)
+            rv = self.build_template(template_name)
 
             if rv:
                 # Add the response to the builded list if is not False.
@@ -123,7 +119,7 @@ class Folio(object):
 
         return builded
 
-    def build_template(self, template_name, force=False):
+    def build_template(self, template_name):
         """Build a template with it's corresponding builder.
 
         The builder is responsible of generating the destination file in the
@@ -135,8 +131,6 @@ class Folio(object):
         and the output encoding.
 
         :param template_name: The template name to build.
-        :param force: If not True, it will not build the template if the
-                      destination already exists, and it was not modified.
         """
         self.logger.info('Building %s', template_name)
 
@@ -163,14 +157,6 @@ class Folio(object):
         dstdir = os.path.join(self.build_path, os.path.dirname(dst))
         if not os.path.exists(dstdir):
             os.makedirs(dstdir)
-
-        # If the build is not being forced, and the destination file is already
-        # generated and its modification time is newer than the source, it has
-        # no new modifications.
-        if (not force and os.path.exists(dst)
-            and os.path.getmtime(dst) >= os.path.getmtime(src)):
-            self.logger.info('Template %s skipped', template_name)
-            return False
 
         #: Retrieve the context. Will call all the context functions and merge
         #: the results together. If no context are found, an empty dictionary
@@ -352,7 +338,7 @@ class Folio(object):
                     return
 
                 self.logger.info('File %s %s', filename, event.event_type)
-                self.build_template(filename, True)
+                self.build_template(filename)
 
             # An event handler that will call `handler` function on any event.
             EventHandler = type('EventHandler', (FileSystemEventHandler, ),
