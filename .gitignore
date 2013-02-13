@@ -4,6 +4,3 @@
 .settings/
 .project
 .pydevproject
-
-# Default build
-build/
