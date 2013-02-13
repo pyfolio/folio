@@ -14,8 +14,16 @@ class MarkdownBuilder(object):
     """A simple Markdown builder. Read files as markdown, parse them and pass
     a content variable with the generated HTML to the template base.
 
-    :param template_base: The base template to pass the generated HTML to.
-    :param markdown_extensions: A list of extensions for the markdown module.
+    For use it, add it as builder to your project::
+
+        from folio.ext.mdown import MarkdownBuilder
+        proj.add_builder('*.md', MarkdownBuilder('_base.html'))
+
+    :param template_base: The base template to pass the generated HTML to. The
+                          default is "_markdown.html".
+    :param markdown_extensions: List of extensions for the markdown module. If
+                                none is selected, the meta extension is
+                                selected.
     """
     def __init__(self, template_base='_markdown.html',
                  markdown_extensions=None):
@@ -41,13 +49,17 @@ class MarkdownBuilder(object):
 
     def translate_template_name(self, filename):
         """Make the same filename as the template, but HTML instead of the
-        markdown extension."""
+        markdown extension.
+
+        :param filename: File name to translate."""
         name, _ = os.path.splitext(filename)
         return '.'.join([name, 'html'])
 
     def parse(self, filename):
         """Parse the given filename with markdown and return a touple with the
-        content HTML and the meta data."""
+        content HTML and the meta data.
+
+        :param filename: The file to parse."""
         with open(filename) as f:
             markdown = f.read()
 
