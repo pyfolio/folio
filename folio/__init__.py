@@ -11,7 +11,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
-__version__ = '0.1-dev'
+__version__ = '0.3'
 
 class Folio(object):
     """The project. This is the main (and only?) object for creating a Folio.
