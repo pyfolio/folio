@@ -11,7 +11,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
-__version__ = '0.3'
+__version__ = '0.4'
 
 class Folio(object):
     """The project. This is the main (and only?) object for creating a Folio.
@@ -286,76 +286,6 @@ class Folio(object):
             self.add_context(template_name, func)
             return func
         return wrapper
-
-    def run(self, host='127.0.0.1', port=8080):
-        """Runs the project on a local development server.
-
-        :param host: The hostname to listen on.
-        :param port: The port of the server.
-        """
-        from SimpleHTTPServer import SimpleHTTPRequestHandler
-        from BaseHTTPServer import HTTPServer
-
-        watchdog_found = True
-
-        try:
-            from watchdog.observers import Observer
-            from watchdog.events import FileSystemEventHandler
-        except ImportError:
-            watchdog_found = False
-
-        # Change the current directory to the build path, as the simple handler
-        # will serve files from the pwd.
-        os.chdir(self.build_path)
-
-        def serve():
-            server = HTTPServer((host, port), SimpleHTTPRequestHandler)
-            server.serve_forever()
-
-        self.logger.info('Serving at %s:%d', host, port)
-
-        if watchdog_found:
-            import time
-            import thread
-
-            # Serve files in a thread so can watch for modified files at the
-            # same time.
-            thread.start_new_thread(serve, ())
-
-            def handler(event):
-                if event.is_directory:
-                    return
-
-                # The relative filename.
-                filename = event.src_path[len(self.source_path):] \
-                                .strip(os.path.sep)
-
-                if not self.is_template(filename):
-                    return
-
-                self.logger.info('File %s %s', filename, event.event_type)
-                self.build_template(filename)
-
-            # An event handler that will call `handler` function on any event.
-            EventHandler = type('EventHandler', (FileSystemEventHandler, ),
-                                {'on_any_event': lambda self, e: handler(e)})
-
-            # An observer that will wait for changes in the template path.
-            observer = Observer()
-            observer.schedule(EventHandler(), path=self.source_path,
-                              recursive=True)
-            observer.start()
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                observer.stop()
-            observer.join()
-        else:
-            try:
-                serve()
-            except KeyboardInterrupt:
-                pass
 
 
 def _static_builder(env, template_name, context, src, dst, encoding):

@@ -8,8 +8,10 @@ import os
 import sys
 import logging
 
-from folio import Folio, __doc__, __version__
 from optparse import OptionParser
+
+from folio import Folio, __doc__, __version__
+from folio.ext.server import run
 
 def parse():
     usage = "%prog [options] SRC DST"
@@ -56,7 +58,7 @@ def main():
     proj.build()
 
     if options.command == 'run':
-        proj.run(options.host, int(options.port))
+        run(proj, options.host, int(options.port))
 
     return 0
 
