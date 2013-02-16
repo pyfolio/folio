@@ -136,6 +136,8 @@ class Folio(object):
                 # prioritize buildin extensions.
                 extension = module
                 break
+            if isinstance(extension, basestring):
+                raise TypeError("Extension '%s' not found." % extension)
 
         # Everything that has a register function can be consider as an
         # extension.
