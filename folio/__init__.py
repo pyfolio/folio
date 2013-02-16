@@ -11,7 +11,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
-__version__ = '0.4'
+__version__ = '0.5'
 
 class Folio(object):
     """The project. This is the main (and only?) object for creating a Folio.
@@ -36,7 +36,7 @@ class Folio(object):
     :param jinja_extensions: Jinja2 extensions.
     """
     def __init__(self, name, source_path='src', build_path='build',
-                 encoding='utf-8', jinja_extensions=()):
+                 encoding='utf-8', extensions=(), jinja_extensions=()):
 
         #: The name of the project. It's used for logging and can improve
         #: debugging information.
@@ -84,6 +84,11 @@ class Folio(object):
         #: it's used by the builders to dump output files.
         self.env = self._create_jinja_environment(jinja_extensions)
 
+        #: Define the Folio extensions registry.
+        self.extensions = {}
+        for extension in extensions:
+            self.add_extension(extension)
+
     def _create_jinja_loader(self):
         """Create a Jinja loader."""
         return FileSystemLoader(searchpath=self.source_path)
@@ -92,6 +97,41 @@ class Folio(object):
         """Create a Jinja environment."""
         return Environment(loader=self._create_jinja_loader(),
                            extensions=extensions)
+
+    def add_extension(self, extension):
+        """Registers a new extension.
+
+        Extensions can be used to add extra functionality to Folio. As they
+        are created by this instance they cannot accept any arguments for
+        configuration.
+
+        If the extension is an string, it will try to load it from the buildin
+        extension package, or as folio_<extname>.
+
+        The extension could have an `register` function that will be called
+        with the Folio project instance as first argument.
+
+        :param extension: The extension itself or an string of the extension
+                          name that could be found inside the buildin package
+                          or as folio_<extname>.
+        """
+        if isinstance(extension, basestring):
+            for modnameformat in ('folio.ext.%s', 'folio_%s'):
+                modname = modnameformat % extension
+                try:
+                    module = __import__(modname, None, None, [extension])
+                except ImportError:
+                    continue
+                # Consider the module as an extension. Use the first one to
+                # prioritize buildin extensions.
+                extension = module
+                break
+
+        # Everything that has a register function can be consider as an
+        # extension.
+        if hasattr(extension, 'register'):
+            extension.register(self)
+        self.extensions[extension.__name__] = extension
 
     def build(self):
         """Build templates to the build directory."""

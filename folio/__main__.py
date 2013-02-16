@@ -13,6 +13,7 @@ from optparse import OptionParser
 from folio import Folio, __doc__, __version__
 from folio.ext.server import run
 
+
 def parse():
     usage = "%prog [options] SRC DST"
     version = "%%prog %s" % __version__
@@ -48,6 +49,7 @@ def parse():
 
     return options, src, dst
 
+
 def main():
     options, src, dst = parse()
 
@@ -61,6 +63,7 @@ def main():
         run(proj, options.host, int(options.port))
 
     return 0
+
 
 if __name__ == '__main__':
     # Support running module as a commandline command.
