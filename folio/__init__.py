@@ -37,8 +37,16 @@ class Folio(object):
     :param encoding: The template's encoding. Defaults to utf-8.
     :param jinja_extensions: Jinja2 extensions.
     """
+
+    #: The default configuration dictionary.
+    config = {
+        'DEBUG':                                False,
+        'TESTING':                              False,
+    }
+
     def __init__(self, name, source_path='src', build_path='build',
-                 encoding='utf-8', extensions=(), jinja_extensions=()):
+                 encoding='utf-8', extensions=(),
+                 jinja_extensions=()):
 
         #: The name of the project. It's used for logging and can improve
         #: debugging information.
