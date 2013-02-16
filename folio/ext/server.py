@@ -74,7 +74,7 @@ class FolioHTTPRequestHandler(SimpleHTTPRequestHandler, object):
         self.server.logger.debug(message, *args)
 
 
-def run(folio, host='127.0.0.1', port=8080, debug=True):
+def run(folio, host='127.0.0.1', port=8080):
     """Runs the project on a local development server.
 
     :param host: The hostname to listen on.
