@@ -79,7 +79,6 @@ def run(folio, host='127.0.0.1', port=8080):
 
     :param host: The hostname to listen on.
     :param port: The port of the server.
-    :param debug: If debug is enabled.
     """
 
     def serve():
