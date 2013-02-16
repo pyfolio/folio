@@ -25,9 +25,7 @@ class MarkdownBuilder(object):
 
     :param template_base: The base template to pass the generated HTML to. The
                           default is "_markdown.html".
-    :param markdown_extensions: List of extensions for the markdown module. If
-                                none is selected, the meta extension is
-                                selected.
+    :param markdown_extensions: List of extensions for the markdown module.
     """
     def __init__(self, template_base=DEFAULT_TEMPLATE,
                  markdown_extensions=DEFAULT_EXTENSIONS):
@@ -36,17 +34,14 @@ class MarkdownBuilder(object):
         self.template_base = template_base
 
         if markdown_extensions is None:
-            markdown_extensions = ['meta']
+            markdown_extensions = []
 
         #: Instance of Markdown.
         self.markdown = markdown.Markdown(extensions=markdown_extensions)
 
     def __call__(self, env, template_name, context, src, dst, encoding):
-        content, meta = self.parse(src)
-
+        content = self.parse(src)
         context['content'] = content
-        context['meta'] = meta
-        context.update(meta)
 
         template = env.get_template(self.template_base)
         template.stream(**context).dump(dst, encoding=encoding)
@@ -61,16 +56,13 @@ class MarkdownBuilder(object):
 
     def parse(self, filename):
         """Parse the given filename with markdown and return a touple with the
-        content HTML and the meta data.
+        content HTML.
 
         :param filename: The file to parse."""
         with open(filename) as f:
             markdown = f.read()
 
-        content = self.markdown.convert(markdown)
-        meta = self.markdown.Meta or {}
-
-        return (content, meta)
+        return self.markdown.convert(markdown)
 
 
 def register(folio):
