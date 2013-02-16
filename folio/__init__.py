@@ -13,6 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 __all__ = ['Folio']
 __version__ = '0.5'
 
+
 class Folio(object):
     """The project. This is the main (and only?) object for creating a Folio.
 
@@ -31,7 +32,8 @@ class Folio(object):
                         build directory. Defaults to ``'src'`` in the project's
                         root.
     :param build_path: Destination directory where the final HTML will be
-                       generated. Defaults to ``'build'`` in the project's root.
+                       generated. Defaults to ``'build'`` in the project's
+                       root.
     :param encoding: The template's encoding. Defaults to utf-8.
     :param jinja_extensions: Jinja2 extensions.
     """

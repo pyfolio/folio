@@ -69,4 +69,4 @@ if __name__ == '__main__':
     # Support running module as a commandline command.
     # Python 2.5 & 2.6 do: `python -m folio.__main__ [options] [args]`.
     # Python 2.7 & 3.x do: `python -m folio [options] [args]`.
-    sys.exit(main()) 
+    sys.exit(main())

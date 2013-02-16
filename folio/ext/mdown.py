@@ -10,6 +10,7 @@ import markdown
 
 __all__ = ['MarkdownBuilder']
 
+
 class MarkdownBuilder(object):
     """A simple Markdown builder. Read files as markdown, parse them and pass
     a content variable with the generated HTML to the template base.
