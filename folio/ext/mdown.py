@@ -10,6 +10,9 @@ import markdown
 
 __all__ = ['MarkdownBuilder']
 
+DEFAULT_TEMPLATE = '_markdown.html'
+DEFAULT_EXTENSIONS = None
+
 
 class MarkdownBuilder(object):
     """A simple Markdown builder. Read files as markdown, parse them and pass
@@ -26,8 +29,8 @@ class MarkdownBuilder(object):
                                 none is selected, the meta extension is
                                 selected.
     """
-    def __init__(self, template_base='_markdown.html',
-                 markdown_extensions=None):
+    def __init__(self, template_base=DEFAULT_TEMPLATE,
+                 markdown_extensions=DEFAULT_EXTENSIONS):
 
         #: This will be the template base for creating the HTML files.
         self.template_base = template_base
@@ -68,3 +71,13 @@ class MarkdownBuilder(object):
         meta = self.markdown.Meta or {}
 
         return (content, meta)
+
+
+def register(folio):
+    # Get parameters from the project configuration dictionary.
+    template = folio.config.get('MARKDOWN_TEMPLATE', DEFAULT_TEMPLATE)
+    extensions = folio.config.get('MARKDOWN_EXTENSIONS', DEFAULT_EXTENSIONS)
+    patterns = folio.config.get('MARKDOWN_BUILDER_PATTERNS', '*.md')
+
+    # Add builder.
+    folio.add_builder(patterns, MarkdownBuilder(template, extensions))
