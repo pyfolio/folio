@@ -27,7 +27,7 @@ class Folio(object):
     You could also call the run method to start a local web server and watch
     for modified files.
 
-    :param name: Projects's name.
+    :param import_name: Projects's name.
     :param source_path: Source directory that contains the templates to be
                         processed and the static files to be copied to the
                         build directory. Defaults to ``'src'`` in the project's
