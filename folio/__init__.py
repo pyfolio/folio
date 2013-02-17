@@ -39,7 +39,7 @@ class Folio(object):
     """
 
     #: The default configuration dictionary.
-    config = {
+    default_config = {
         'DEBUG':                                False,
         'TESTING':                              False,
     }
@@ -54,6 +54,9 @@ class Folio(object):
 
         #: The project logger, an instance of the :class: `logging.Logger`.
         self.logger = logging.getLogger(self.name)
+
+        #: Make the configuration dictionary.
+        self.config = self._create_config()
 
         #: The destination directory to copy the static content and create the
         #: builded templates.
@@ -109,6 +112,10 @@ class Folio(object):
         self.extensions = {}
         for extension in extensions:
             self.add_extension(extension)
+
+    def _create_config(self):
+        """Create the configuration dictionary based on the default config."""
+        return {}.update(self.default_config)
 
     def _create_jinja_loader(self):
         """Create a Jinja loader."""
