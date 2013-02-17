@@ -11,7 +11,7 @@ import markdown
 __all__ = ['MarkdownBuilder']
 
 DEFAULT_TEMPLATE = '_markdown.html'
-DEFAULT_EXTENSIONS = None
+DEFAULT_EXTENSIONS = ()
 
 
 class MarkdownBuilder(object):
@@ -32,9 +32,6 @@ class MarkdownBuilder(object):
 
         #: This will be the template base for creating the HTML files.
         self.template_base = template_base
-
-        if markdown_extensions is None:
-            markdown_extensions = []
 
         #: Instance of Markdown.
         self.markdown = markdown.Markdown(extensions=markdown_extensions)
