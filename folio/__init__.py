@@ -116,6 +116,13 @@ class Folio(object):
 
     @property
     def import_path(self):
+        """Retrieve the import path (or root path) from the import name module
+        file.
+
+        The module has to be already loaded as this function doesn't support
+        loaders/finders. If the module is not already loaded, the current
+        working directory will be used instead.
+        """
         module = sys.modules[self.import_name]
         if module is not None and hasattr(module, '__file__'):
             return os.path.abspath(os.path.dirname(module.__file__))
