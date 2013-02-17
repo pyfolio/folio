@@ -54,7 +54,7 @@ class Folio(object):
         self.import_name = import_name
 
         #: The project logger, an instance of the :class: `logging.Logger`.
-        self.logger = logging.getLogger(self.name)
+        self.logger = logging.getLogger(self.import_name)
 
         #: Make the configuration dictionary.
         self.config = self._create_config()
