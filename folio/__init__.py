@@ -79,7 +79,18 @@ class Folio(object):
         #:                 'author': 'Me'}
         #:
         #: Then in the template you could use it as normal variables.
-        self.contexts = {}
+        #:
+        #: The template name passed to the context can be a list of patterns
+        #: for a filename, so you could apply the same context to series of
+        #: templates::
+        #:
+        #:     @proj.context(['feed.atom', '*.rss'])
+        #:     def feed(jinja2_env):
+        #:         return {'desc': 'A site about nothing'}
+        #:
+        #: Only the jinja environment is passed to the context function. If
+        #: you need more control, you should write a plugin.
+        self.contexts = []
 
         #: Builders are the core of folio, this will link a filename match with
         #: a build function that will be responsible of translating templates
@@ -279,20 +290,24 @@ class Folio(object):
         """Returns a list of templates."""
         return self.env.list_templates(filter_func=self.is_template)
 
-    def add_context(self, template_name, context):
-        """Add a new context to the given template name. Could add several
-        contexts to the same template, this will be merged into one.
+    def add_context(self, pattern, context):
+        """Add a new context to the given pattern of a template name. If the
+        pattern is a iterable, will add several times the same context.
 
-        :param template_name: The template name to add the context on.
+        :param pattern: One or more template name patterns to add the context.
         :param context: The context itself or a function that will accept the
                         jinja environment as first parameter and return the
                         context for the template.
         """
-        if not self.is_template(template_name):
-            raise ValueError('Invalid template')
-        if not template_name in self.contexts:
-            self.contexts[template_name] = []
-        self.contexts[template_name].append(context)
+        if isinstance(pattern, basestring):
+            self.contexts.append((pattern, context))
+        else:
+            try:
+                iterator = iter(pattern)
+            except TypeError:
+                raise TypeError('The pattern is not a string, nor iterable.')
+            for item in iterator:
+                self.contexts.append((item, context))
 
     def get_context(self, template_name):
         """Returns a context for the given template. If more that one context
@@ -310,15 +325,14 @@ class Folio(object):
         :param template_name: The template name to retrieve the context.
         """
         context = {}
-        if not template_name in self.contexts:
-            return context
-        for ctx in self.contexts[template_name]:
-            if callable(ctx):
-                ctx = ctx(self.env)
-            context.update(ctx)
+        for pattern, ctx in self.contexts:
+            if fnmatch.fnmatch(template_name, pattern):
+                if callable(ctx):
+                    ctx = ctx(self.env)
+                context.update(ctx)
         return context
 
-    def context(self, template_name):
+    def context(self, pattern):
         """A decorator that is used to register a context function for a given
         template. This make the same thing as the method `add_context` passed
         with a function.
@@ -332,10 +346,11 @@ class Folio(object):
                     ('2012-10-11', 'Hello World', 'articles/helloworld.html')
                 ]}
 
-        :param template_name: The template name to make a context.
+        :param pattern: The template name pattern (or more than one) to make a
+                        context.
         """
         def wrapper(func):
-            self.add_context(template_name, func)
+            self.add_context(pattern, func)
             return func
         return wrapper
 
