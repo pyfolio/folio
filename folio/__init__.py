@@ -45,14 +45,13 @@ class Folio(object):
         'TESTING':                              False,
     }
 
-    def __init__(self, name, source_path='src', build_path='build',
+    def __init__(self, import_name, source_path='src', build_path='build',
                  encoding='utf-8', extensions=(),
                  jinja_extensions=()):
 
         #: The name of the project. It's used for logging and can improve
         #: debugging information.
-        self.name = name
-        self.root = os.path.dirname(sys.modules[name].__file__)
+        self.import_name = import_name
 
         #: The project logger, an instance of the :class: `logging.Logger`.
         self.logger = logging.getLogger(self.name)
@@ -62,14 +61,10 @@ class Folio(object):
 
         #: The destination directory to copy the static content and create the
         #: builded templates.
-        self.build_path = build_path
-        if not os.path.isabs(self.build_path):
-            self.build_path = os.path.abspath(os.path.join(self.root, self.build_path))
+        self.build_path = self._make_abspath(build_path)
 
         #: The source directory from where the templates will be parsed.
-        self.source_path = source_path
-        if not os.path.isabs(self.source_path):
-            self.source_path = os.path.abspath(os.path.join(self.root, self.source_path))
+        self.source_path = self._make_abspath(source_path)
 
         #: The source encoding for templates. Default to utf-8.
         self.encoding = encoding
@@ -118,6 +113,23 @@ class Folio(object):
         self.extensions = {}
         for extension in extensions:
             self.add_extension(extension)
+
+    @property
+    def import_path(self):
+        module = sys.modules[self.import_name]
+        if module is not None and hasattr(module, '__file__'):
+            return os.path.abspath(os.path.dirname(module.__file__))
+        return os.getcwd()
+
+    def _make_abspath(self, path):
+        """Make a path absolute. If the given path is relative, it will be
+        from the root path of the project.
+
+        :param path: The path to make absolute.
+        """
+        if not os.path.isabs(path):
+            path = os.path.join(self.import_path, path)
+        return path
 
     def _create_config(self):
         """Create the configuration dictionary based on the default config."""
