@@ -12,7 +12,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ['Folio']
-__version__ = '0.5'
+__version__ = '0.1'
 
 
 class Folio(object):
@@ -36,6 +36,7 @@ class Folio(object):
                        generated. Defaults to ``'build'`` in the project's
                        root.
     :param encoding: The template's encoding. Defaults to utf-8.
+    :param extensions: List of Folio extensions to load and register.
     :param jinja_extensions: Jinja2 extensions.
     """
 
