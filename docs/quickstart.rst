@@ -2,7 +2,7 @@ Quickstart
 ==========
 
 This page gives a quick introduction to Folio. It assumes you have Folio
-installed. If you do not, head over to the installation section.
+installed. If is not, head over to the installation section.
 
 A minimal project
 -----------------
