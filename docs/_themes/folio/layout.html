@@ -1,0 +1,14 @@
+{% extends "basic/layout.html" %}
+
+{% block header %}
+{{ super() }}
+<div class="header">
+  <h1>{{ project|striptags|e }}</h1>
+  <h2>{{ _('Documentation') }}</h2>
+</div>
+{% endblock %}
+
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+
+{% block footer %}{% endblock %}

@@ -101,7 +101,7 @@ class Folio(object):
         #: a build function that will be responsible of translating templates
         #: into final HTML files.
         #:
-        #: The default builder is given, this will treat all *.html files as
+        #: The default builder is given, this will treat all HTML files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
         self.builders = [('*', _static_builder), ('*.html', _template_builder)]

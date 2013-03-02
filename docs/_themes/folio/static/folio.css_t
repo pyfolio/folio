@@ -1,0 +1,56 @@
+@import url("basic.css");
+
+body { margin: 0; font-size: 14px; font-family: 'Gentium Basic', sans-serif;
+       color: #333; background-color: #CCC; line-height: 20px; }
+
+h1, h2, h3, h4 { margin: 10px 0; line-height: 40px;
+                 font-family: inherit; font-weight: normal; color: inherit; }
+h1 { font-size: 38.5px; }
+h2 { font-size: 31.5px; }
+h3 { font-size: 24.5px; }
+h4 { font-size: 17.5px; }
+
+body { padding: 0 20px 20px 20px; }
+p    { margin: 0 0 10px; }
+
+.document, .clearfix             { *zoom: 1; }
+.document:before, .clearfix:before,
+.document:after, .clearfix:after { display: table; line-height: 0; content: ""; }
+.document:after, .clearfix:after { clear: both; }
+
+.header    { padding-left: 20px; }
+.header h1 { font-size: 31.5px; margin-bottom: 0; }
+.header h2 { font-size: 15.5px; margin-top: 0; line-height: 20px; }
+
+.document { width: 100%; }
+
+.documentwrapper        { display: block; float: left; width: 75%; }
+.documentwrapper .body  { background-color: #FFF; padding: 20px;
+                          border: 1px solid #B3B3B3; }
+.body h1     { font-size: 24.5px; margin: 0 0 10px; }
+.body h2     { font-size: 20.5px; }
+.body h3     { font-size: 17.5px; }
+.body p      { text-align: justify; }
+
+div.sphinxsidebar        { display: block; float: left; width: 25%; margin: 0; }
+div.sphinxsidebarwrapper { padding: 0 20px; }
+
+.sphinxsidebar h3,
+.sphinxsidebar h4             { font-size: 17.5px; margin: 5px 0;
+                                line-height: 20px; }
+.sphinxsidebar ul             { margin: 0; padding: 0; }
+.sphinxsidebar ul li          { list-style-type: none; }
+.sphinxsidebar ul li a        { color: #333; text-decoration: none;
+                                margin: 0 -20px; padding: 5px 20px;
+                                display: block; }
+.sphinxsidebar ul li a:hover  { background-color: rgba(67, 179, 255, 0.5); }
+.sphinxsidebar ul li a.active { background-color: #B3B3B3;
+                                border-top: 1px solid #999;
+                                border-bottom: 1px solid #D5D5D5; }
+.sphinxsidebar ul li a small  { display: block; color: #666; font-size: 14px; }
+.sphinxsidebar p              { margin: 5px 0; }
+
+@media (max-width: 767px) {
+  .documentwrapper { width: 100%; float: none; margin-bottom: 20px; }
+  .sphinxsidebar   { width: 100%; float: none; }
+}
