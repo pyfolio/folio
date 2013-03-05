@@ -9,8 +9,8 @@ version = '0.1' # The short X.Y version.
 release = '0.1' # The full version, including alpha/beta/rc tags.
 
 extensions = ['sphinx.ext.autodoc']
-templates_path = ['_templates']
-exclude_patterns = ['_build']
+#templates_path = ['_templates']
+#exclude_patterns = ['_build']
 master_doc = 'index'
 source_suffix = '.rst'
 
@@ -24,7 +24,7 @@ source_suffix = '.rst'
 html_theme = 'folio'
 html_theme_options = {}
 html_theme_path = ['_themes']
-html_static_path = ['_static']
+#html_static_path = ['_static']
 html_sidebars = {
     '**': ['navigation.html', 'sourcelink.html', 'searchbox.html']
 }
