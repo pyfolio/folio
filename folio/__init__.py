@@ -94,7 +94,7 @@ class Folio(object):
         #:         return {'desc': 'A site about nothing'}
         #:
         #: Only the jinja environment is passed to the context function. If
-        #: you need more control, you should write a plugin.
+        #: you need more control, you should write an extension.
         self.contexts = []
 
         #: Builders are the core of folio, this will link a filename match with
@@ -310,7 +310,7 @@ class Folio(object):
 
     def is_template(self, filename):
         """Return true if a file is considered a template. The default
-        behaviour is to ignore all hidden files and the ones that start with
+        behavior is to ignore all hidden files and the ones that start with
         and underscore.
 
         :param filename: The (possible) template filename.
