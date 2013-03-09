@@ -18,3 +18,11 @@ Documentation
    installation
    quickstart
    api
+
+   changes
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
