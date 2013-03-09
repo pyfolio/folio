@@ -141,7 +141,9 @@ class Folio(object):
 
     def _create_config(self):
         """Create the configuration dictionary based on the default config."""
-        return {}.update(self.default_config)
+        new_config = {}
+        new_config.update(self.default_config)
+        return new_config
 
     def _create_jinja_loader(self):
         """Create a Jinja loader."""
