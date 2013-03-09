@@ -3,12 +3,14 @@
     Folio local development web server.
 """
 
+from __future__ import with_statement
+
 import os
 import time
+import urllib
 import thread
 
-from BaseHTTPServer import HTTPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ForkingMixIn
 
 __all__ = ['run']
@@ -22,45 +24,92 @@ class FolioHTTPServer(HTTPServer, ForkingMixIn, object):
     def max_children(self):
         return 1
 
-    def __init__(self, folio, *args, **kargs):
+    def __init__(self, folio, *args, **kwargs):
         self.folio = folio
         self.logger = self.folio.logger
-        self.webdir = self.folio.build_path
 
-        HTTPServer.__init__(self, *args, **kargs)
+        HTTPServer.__init__(self, *args, **kwargs)
 
-        self.logger.info('Serving %s', self.webdir)
+        self.logger.info('Serving %s', self.folio.build_path)
         self.logger.info('Running at %s:%d', *self.server_address)
 
     def finish_request(self, request, client_address):
-        self.RequestHandlerClass(self.webdir, request, client_address, self)
+        self.RequestHandlerClass(self.folio, request, client_address, self)
 
 
-class FolioHTTPRequestHandler(SimpleHTTPRequestHandler, object):
+class FolioHTTPRequestHandler(BaseHTTPRequestHandler, object):
     """Request for FolioHTTPServer.
 
     This will serve files as SimpleHTTPRequestHandler but within the value of
-    the wdir parameter.
+    the folio parameter, used to extract the build path and the debug status.
 
     It uses the parent logger to log information.
 
-    :param wdir: The web directory to serve.
+    :param folio: The serving project.
     """
+
+    #: Allowed extensions. Only serve TEXT files, not BINARY.
+    extensions = {'.txt': 'text/plain',
+                  '.html': 'text/html',
+                  '.css': 'text/css',
+                  '.js': 'text/javascript'}
 
     @property
     def server_version(self):
         return 'FolioHTTPServer/' + __version__
 
-    def __init__(self, wdir, *args, **kargs):
-        self.cdir = os.getcwd()
-        self.wdir = wdir
+    def __init__(self, folio, request, client_address, server):
+        self.wpath = folio.build_path
+        self.debug = folio.config['DEBUG']
 
-        SimpleHTTPRequestHandler.__init__(self, *args, **kargs)
+        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
+
+    def do_GET(self):
+        """Serve a GET request."""
+        path = self.send_headers()
+        if path:
+            with open(path, 'r') as f:
+                content = f.read()
+
+            self.wfile.write(content)
+
+    def do_HEAD(self):
+        """Serve a HEAD request."""
+        self.send_headers()
+
+    def send_headers(self):
+        """Based on SimpleHTTPRequestHandler.send_head, but instead only serves
+        for text files, and manage content and don't copy binary files
+        directly."""
+        path = self.translate_path(self.path)
+        if os.path.isdir(path):
+            if not self.path.endswith('/'):
+                self.send_response(301)
+                self.send_header("Location", self.path + "/")
+                self.end_headers()
+                return None
+            path = os.path.join(path, 'index.html')
+
+        _, ext = os.path.splitext(path)
+        if ext not in self.extensions:
+            return self.send_error(403, 'Forbidden')
+
+        if not os.path.exists(path):
+            return self.send_error(404, 'File not found')
+
+        self.send_response(200)
+        self.send_header("Content-type", self.extensions[ext])
+        self.end_headers()
+
+        return path
 
     def translate_path(self, path):
-        os.chdir(self.wdir)
-        path = SimpleHTTPRequestHandler.translate_path(self, path)
-        os.chdir(self.cdir)
+        """Translate URL to local file system."""
+        path = path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
+        path = os.path.normpath(urllib.unquote(path))
+        path = os.path.join(self.wpath, *path.split('/'))
+
         return path
 
     def log_request(self, code='-', size='-'):
