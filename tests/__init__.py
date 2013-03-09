@@ -8,6 +8,7 @@ class FolioTestCase(unittest.TestCase):
 
     def setUp(self):
         self.proj = folio.Folio(__name__)
+        self.proj.config['TESTING'] = True
 
     def tearDown(self):
         self.proj = None
