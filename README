@@ -2,7 +2,7 @@
 Folio
 =====
 
-Folio is an static website generator using jinja2 template engine.
+Folio is an static website generator.
 
 Dependencies
 ------------
