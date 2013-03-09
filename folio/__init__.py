@@ -177,7 +177,7 @@ class Folio(object):
                 except ImportError:
                     continue
                 # Consider the module as an extension. Use the first one to
-                # prioritize buildin extensions.
+                # prioritize build-in extensions.
                 extension = module
                 break
             if isinstance(extension, basestring):
@@ -202,7 +202,7 @@ class Folio(object):
 
         # A set of builded files. This will be returned by the method so you
         # could do something with the new modified templates. The format is a
-        # touple with source path, destination path, and the result of the
+        # tuple with source path, destination path, and the result of the
         # builder.
         builded = set()
 
@@ -234,7 +234,7 @@ class Folio(object):
         #: empty, because the static builder is as a "catch all".
         builder = self.get_builder(template_name)
 
-        #: This is the fullpath of the template. This is usefull if the file is
+        #: This is the fullpath of the template. This is useful if the file is
         #: not actually a jinja template but another format that you need to
         #: open and process.
         src = os.path.join(self.source_path, template_name)
