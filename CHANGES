@@ -1,10 +1,10 @@
 Changes in Folio
 ================
 
-Full list of changes between releases.
-
- * Create documentation.
- * Create tests.
+* :meth:`folio.Folio.is_template` will ignore files in a hidden directory or
+  that starts with an underscore.
+* Create tests.
+* Create documentation.
 
 Version 0.1
 -----------

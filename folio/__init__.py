@@ -313,10 +313,16 @@ class Folio(object):
         behavior is to ignore all hidden files and the ones that start with
         and underscore.
 
+        .. versionadded:: 0.2
+            Will ignore files inside directories that starts with a dot or an
+            underscore.
+
         :param filename: The (possible) template filename.
         """
-        _, tail = os.path.split(filename)
-        ignored = tail.startswith('.') or tail.startswith('_')
+        ignored = ('%s_' % os.path.sep in filename or
+                   '%s.' % os.path.sep in filename or
+                   filename.startswith('.') or
+                   filename.startswith('_'))
         return not ignored
 
     def list_templates(self):

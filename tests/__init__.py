@@ -46,5 +46,19 @@ class FolioTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.proj.add_builder(lambda: None, lambda: None)
 
+    def test_is_template(self):
+        self.assertTrue(self.proj.is_template('index.html'))
+        self.assertTrue(self.proj.is_template('good_news/im_alive.html'))
+        self.assertTrue(self.proj.is_template('blog/20130228-helloworld.md'))
+
+        self.assertFalse(self.proj.is_template('.hidden'))
+        self.assertFalse(self.proj.is_template('_draft-conquer_the_world.md'))
+        self.assertFalse(self.proj.is_template('projects/.hidden'))
+        self.assertFalse(self.proj.is_template('projects/_secret.html'))
+        self.assertFalse(self.proj.is_template('projects/_inc/unique.css'))
+        self.assertFalse(self.proj.is_template('_inc/reset.css'))
+        self.assertFalse(self.proj.is_template('_inc/_underscore2.js'))
+        self.assertFalse(self.proj.is_template('.git/config'))
+
 if __name__ == '__main__':
     unittest.main()
