@@ -30,7 +30,7 @@ Now you need to create your source directory where all the files to build will
 be. In there you will have your static files and your templates mixed. This
 will be, basically, how you hierarchy will look after it's builded, but with
 the source files. By default, this directory will be called *src*, but you
-can change it by passing a `source_path` parameter to the `Folio` class.
+can change it by passing the :attr:`folio.Folio.source_path` parameter.
 
 So, go ahead and create an *src* directory and a `hello.html` template inside:
 
