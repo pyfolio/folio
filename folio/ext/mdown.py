@@ -23,6 +23,12 @@ class MarkdownBuilder(object):
         from folio.ext.mdown import MarkdownBuilder
         proj.add_builder('*.md', MarkdownBuilder('_base.html'))
 
+    This module serves as a extension, you could register it in your project
+    and the builder will be added::
+
+        from folio import Folio
+        proj = Folio(__name__, extensions=['mdown'])
+
     :param template_base: The base template to pass the generated HTML to. The
                           default is "_markdown.html".
     :param markdown_extensions: List of extensions for the markdown module.
