@@ -10,6 +10,29 @@ Dependencies
  * Jinja2: Templating system.
  * Markdown (optional): Markdown builder.
 
+Installation
+------------
+
+To install the last release::
+
+    $ pip install Folio
+
+Or you could use the setup script::
+
+    $ python setup.py install
+    -- OR --
+    $ python setup.py develop
+
+You may wish to consider using virtualenv to keep Folio's environment separate
+from the rest of your system.
+
+Testing
+-------
+
+To invoke testing, run from the top level directory::
+
+    $ python setup.py test
+
 License
 -------
 
