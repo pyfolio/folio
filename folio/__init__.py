@@ -153,8 +153,13 @@ class Folio(object):
 
     def _create_jinja_environment(self, extensions):
         """Create a Jinja environment."""
-        return Environment(loader=self._create_jinja_loader(),
-                           extensions=extensions)
+        env = Environment(loader=self._create_jinja_loader(),
+                          extensions=extensions)
+        env.globals.update({
+            'config': self.config,
+        })
+
+        return env
 
     def add_extension(self, extension):
         """Registers a new extension.
