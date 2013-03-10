@@ -1,6 +1,9 @@
 Changes in Folio
 ================
 
+Version 0.2
+-----------
+
 * Add config to Jinja globals.
 * Make :attr:`folio.Folio.import_path` a lazy property.
 * :meth:`folio.Folio.is_template` will ignore files in a hidden directory or

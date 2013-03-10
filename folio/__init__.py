@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 from .helpers import lazy_property
 
 __all__ = ['Folio']
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class Folio(object):
