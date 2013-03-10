@@ -4,6 +4,7 @@ import os
 import folio
 import unittest
 
+
 class FolioTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -60,6 +61,7 @@ class FolioTestCase(unittest.TestCase):
         self.assertFalse(self.proj.is_template('_inc/reset.css'))
         self.assertFalse(self.proj.is_template('_inc/_underscore2.js'))
         self.assertFalse(self.proj.is_template('.git/config'))
+
 
 if __name__ == '__main__':
     unittest.main()

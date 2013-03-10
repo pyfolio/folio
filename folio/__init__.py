@@ -11,6 +11,8 @@ import logging
 
 from jinja2 import Environment, FileSystemLoader
 
+from .helpers import lazy_property
+
 __all__ = ['Folio']
 __version__ = '0.1'
 
@@ -115,7 +117,7 @@ class Folio(object):
         for extension in extensions:
             self.add_extension(extension)
 
-    @property
+    @lazy_property
     def import_path(self):
         """Retrieve the import path (or root path) from the import name module
         file.
@@ -236,7 +238,7 @@ class Folio(object):
         #: empty, because the static builder is as a "catch all".
         builder = self.get_builder(template_name)
 
-        #: This is the fullpath of the template. This is useful if the file is
+        #: This is the full path of the template. This is useful if the file is
         #: not actually a jinja template but another format that you need to
         #: open and process.
         src = os.path.join(self.source_path, template_name)
@@ -248,7 +250,7 @@ class Folio(object):
         except AttributeError:
             dstname = self.translate_template_name(template_name)
 
-        #: This is the fullpath destination.
+        #: This is the full path destination.
         dst = os.path.join(self.build_path, dstname)
 
         # If the destination directory doesn't exists, create it.
@@ -261,7 +263,7 @@ class Folio(object):
         #: is returned.
         context = self.get_context(template_name)
 
-        # Call the real builder. For the moment, don't care what the retuned
+        # Call the real builder. For the moment, don't care what the returned
         # value is, if any. But, in case that it return something, we grab it
         # and return it again.
         rv = builder(self.env, template_name, context, src, dst, self.encoding)
