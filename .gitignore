@@ -6,6 +6,10 @@
 build/
 dist/
 
+# Coverage
+.coverage
+htmlcov/
+
 # PyDev
 .settings/
 .project
