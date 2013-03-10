@@ -1,6 +1,7 @@
 Changes in Folio
 ================
 
+* Make :attr:`folio.Folio.import_path` a lazy property.
 * :meth:`folio.Folio.is_template` will ignore files in a hidden directory or
   that starts with an underscore.
 * Create tests.
