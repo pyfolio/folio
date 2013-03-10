@@ -64,6 +64,17 @@ class FolioTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.proj.add_builder(lambda: None, lambda: None)
 
+    def test_get_builder(self):
+        static_builder = self.proj.get_builder('*')
+        template_builder = self.proj.get_builder('*.html')
+
+        self.assertEquals(folio._static_builder, static_builder)
+        self.assertEquals(folio._template_builder, template_builder)
+
+    def test_get_builder_not_found(self):
+        self.proj.builders = []
+        self.assertEquals(None, self.proj.get_builder('foobar'))
+
     def test_is_template(self):
         self.assertTrue(self.proj.is_template('index.html'))
         self.assertTrue(self.proj.is_template('good_news/im_alive.html'))
