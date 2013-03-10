@@ -14,12 +14,6 @@ class FolioTestCase(unittest.TestCase):
     def tearDown(self):
         self.proj = None
 
-    def test_import_path(self):
-        cwd = os.path.abspath(os.path.dirname(__file__))
-        msg = 'Import path must be the absolute path of directory where the' \
-              ' project script is.'
-        self.assertEquals(cwd, self.proj.import_path, msg)
-
     def test_default_builders(self):
         expected = ['*', '*.html']
         actual = [pattern for pattern, _ in self.proj.builders]
@@ -27,6 +21,28 @@ class FolioTestCase(unittest.TestCase):
         # Compare only the patterns because the implementation of the builder
         # can change with the time.
         self.assertSequenceEqual(expected, actual)
+
+    def test_import_path(self):
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        msg = 'Import path must be the absolute path of directory where the' \
+              ' project script is.'
+        self.assertEquals(cwd, self.proj.import_path, msg)
+
+    def test_add_extension(self):
+        import fixtures.ext
+
+        with self.assertRaises(fixtures.ext.ExtensionRegistered):
+            self.proj.add_extension(fixtures.ext)
+
+        self.assertIn('ext', self.proj.extensions)
+
+        with self.assertRaises(LookupError):
+            self.proj.add_extension(fixtures.ext)
+
+    def test_add_extension_invalid(self):
+        ext = {'register': lambda: None}
+        with self.assertRaises(ValueError):
+            self.proj.add_extension(ext)
 
     def test_add_builder_basestring(self):
         self.proj.add_builder('test', lambda: None)

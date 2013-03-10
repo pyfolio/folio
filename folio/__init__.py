@@ -175,7 +175,7 @@ class Folio(object):
         with the Folio project instance as first argument.
 
         :param extension: The extension itself or an string of the extension
-                          name that could be found inside the buildin package
+                          name that could be found inside the build-in package
                           or as folio_<extname>.
         """
         if isinstance(extension, basestring):
@@ -185,18 +185,42 @@ class Folio(object):
                     module = __import__(modname, None, None, [extension])
                 except ImportError:
                     continue
+
                 # Consider the module as an extension. Use the first one to
                 # prioritize build-in extensions.
-                extension = module
+                extname, extension = extension, module
                 break
+
+            # If it's still an string, the extension was not found.
             if isinstance(extension, basestring):
-                raise TypeError("Extension '%s' not found." % extension)
+                raise LookupError("Extension '%s' not found." % extension)
+        else:
+            try:
+                extname = extension.__name__
+            except AttributeError:
+                raise ValueError("Extension name not found.")
+
+            # Use only the last part as the extension name. For example, if the
+            # full module name is `myproj.ext.archive_things`, the extension
+            # name will become `archive_things`.
+            extname = extname.split('.')[-1]
+
+            # If the extension is `folio_<extname>`, keep only the `<extname>`
+            # part as extension name.
+            if extname.startswith('folio_'):
+                extname = extname[6:]
+
+        if extname in self.extensions:
+            raise LookupError("The '%s' extension has already been"
+                              " registered." % extname)
+
+        # Add the found extension to the registry.
+        self.extensions[extname] = extension
 
         # Everything that has a register function can be consider as an
         # extension.
         if hasattr(extension, 'register'):
             extension.register(self)
-        self.extensions[extension.__name__] = extension
 
     def build(self):
         """Build templates to the build directory."""
