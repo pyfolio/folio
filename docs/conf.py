@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from folio import __version__
 
 # -- General configuration ----------------------------------------------------
 
 project = u'Folio'
 copyright = u'2013, Juan M Martínez'
-version = '0.1' # The short X.Y version.
-release = '0.1' # The full version, including alpha/beta/rc tags.
+version = __version__ # The short X.Y version.
+release = __version__ # The full version, including alpha/beta/rc tags.
 
 extensions = ['sphinx.ext.autodoc']
 #templates_path = ['_templates']
