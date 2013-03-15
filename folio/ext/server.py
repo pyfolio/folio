@@ -87,7 +87,6 @@ class FolioHTTPRequestHandler(BaseHTTPRequestHandler, object):
                 shutil.copyfileobj(f, self.wfile)
             else:
                 content = f.read()
-                content = content + 'DEBUG'
 
                 self.wfile.write(content)
 
