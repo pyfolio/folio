@@ -3,12 +3,11 @@
     Folio local development web server.
 """
 
-from __future__ import with_statement
-
 import os
 import time
 import urllib
 import thread
+import shutil
 
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ForkingMixIn
@@ -48,11 +47,23 @@ class FolioHTTPRequestHandler(BaseHTTPRequestHandler, object):
     :param folio: The serving project.
     """
 
-    #: Allowed extensions. Only serve TEXT files, not BINARY.
-    extensions = {'.txt': 'text/plain',
-                  '.html': 'text/html',
-                  '.css': 'text/css',
-                  '.js': 'text/javascript'}
+    #: Text allowed extensions.
+    txt_extensions = {'.txt'    : 'text/plain',
+                      '.html'   : 'text/html',
+                      '.css'    : 'text/css',
+                      '.js'     : 'text/javascript'}
+
+    #: Binary allowed extensions.
+    bin_extensions = {'.png'    : 'image/png',
+                      '.gif'    : 'image/gif',
+                      '.jpeg'   : 'image/jpeg',
+                      '.jpg'    : 'image/jpeg',
+                      '.ico'    : 'image/x-icon'}
+
+    #: All the allowed extensions.
+    extensions = {}
+    extensions.update(txt_extensions)
+    extensions.update(bin_extensions)
 
     @property
     def server_version(self):
@@ -68,19 +79,28 @@ class FolioHTTPRequestHandler(BaseHTTPRequestHandler, object):
         """Serve a GET request."""
         path = self.send_headers()
         if path:
-            with open(path, 'r') as f:
-                content = f.read()
+            _, ext = os.path.splitext(path)
+            fmode = 'rb' if ext in self.bin_extensions else 'r'
+            f = open(path, fmode)
 
-            self.wfile.write(content)
+            if ext in self.bin_extensions:
+                shutil.copyfileobj(f, self.wfile)
+            else:
+                content = f.read()
+                content = content + 'DEBUG'
+
+                self.wfile.write(content)
+
+            f.close()
 
     def do_HEAD(self):
         """Serve a HEAD request."""
         self.send_headers()
 
     def send_headers(self):
-        """Based on SimpleHTTPRequestHandler.send_head, but instead only serves
-        for text files, and manage content and don't copy binary files
-        directly."""
+        """Based on SimpleHTTPRequestHandler.send_head, but doesn't send the
+        header `Content-Length`. This is because if it's a text file, the
+        method `do_GET` want to change it contexts."""
         path = self.translate_path(self.path)
         if os.path.isdir(path):
             if not self.path.endswith('/'):
