@@ -47,3 +47,31 @@ And run you project with your Python interpreter::
 Nothing happened? Checkout the `build` directory, it has a `hello.html`. If you
 open it with a browser, you will see that is a compiled version of the original
 source we just created.
+
+Contexts
+--------
+
+You might notice that in our template, we use a variable that has a default
+value. What if we want to change the value of the variable? Simple, we add a
+context to the template in the project.
+
+Modify `myfolio.py` file to look like this::
+
+    from folio import Folio
+    
+    proj = Folio(__name__)
+    
+    @proj.context('hello.html')
+    def hello_context(jinja_env):
+        return {'name': 'Pachi'}
+    
+    if __name__ == "__main__":
+        proj.build()
+
+The new function :func:`hello_context` will be registered with the decorator
+:meth:`folio.Folio.context` to add a new set of variables assigned to the
+template `hello.html`.
+
+Re-build your project with the same command as before (``python myfolio.py``)
+and in the `build` directory the `hello.html` will say "Hello Pachi!" instead
+of "Hello World!".
