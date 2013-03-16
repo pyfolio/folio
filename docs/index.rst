@@ -17,6 +17,7 @@ Documentation
    introduction
    installation
    quickstart
+   contexts
    api
 
    changes
