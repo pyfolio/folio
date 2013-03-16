@@ -46,6 +46,8 @@ class Folio(object):
     default_config = {
         'DEBUG':                                False,
         'TESTING':                              False,
+        'EXTENSIONS':                           [],
+        'JINJA_EXTENSIONS':                     [],
     }
 
     def __init__(self, import_name, source_path='src', build_path='build',
@@ -61,6 +63,7 @@ class Folio(object):
 
         #: Make the configuration dictionary.
         self.config = self._create_config()
+        self.config_initialized = False
 
         #: The destination directory to copy the static content and create the
         #: builded templates.
@@ -142,10 +145,27 @@ class Folio(object):
         return path
 
     def _create_config(self):
-        """Create the configuration dictionary based on the default config."""
+        """Create the configuration dictionary based on the default
+        configuration."""
         new_config = {}
         new_config.update(self.default_config)
         return new_config
+
+    def init_config(self):
+        """Initialize the configuration."""
+
+        if self.config_initialized:
+            return
+
+        # Register jinja extensions.
+        for jinja_extension in self.config.get('JINJA_EXTENSIONS', []):
+            self.env.add_extension(jinja_extension)
+
+        # Register extensions.
+        for extension in self.config.get('EXTENSIONS', []):
+            self.register_extension(extension)
+
+        self.config_initialized = True
 
     def _create_jinja_loader(self):
         """Create a Jinja loader."""
@@ -163,6 +183,10 @@ class Folio(object):
         return env
 
     def add_extension(self, extension):
+        """Add an extension to the registry."""
+        self.config.get('EXTENSIONS', []).append(extension)
+
+    def register_extension(self, extension):
         """Registers a new extension.
 
         Extensions can be used to add extra functionality to Folio. As they
@@ -186,6 +210,8 @@ class Folio(object):
                     module = __import__(modname, None, None, [extension])
                 except ImportError:
                     continue
+
+                self.logger.debug("Extension '%s' found." % extension)
 
                 # Consider the module as an extension. Use the first one to
                 # prioritize build-in extensions.
@@ -224,7 +250,12 @@ class Folio(object):
             extension.register(self)
 
     def build(self):
-        """Build templates to the build directory."""
+        """Build templates to the build directory. It will create the build
+        path if not exists, and build all matched templates."""
+
+        # Initialize the configuration.
+        self.init_config()
+
         # If the build directory does exits, create it.
         if not os.path.exists(self.build_path):
             os.mkdir(self.build_path)

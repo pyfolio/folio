@@ -28,21 +28,21 @@ class FolioTestCase(unittest.TestCase):
               ' project script is.'
         self.assertEquals(cwd, self.proj.import_path, msg)
 
-    def test_add_extension(self):
+    def test_register_extension(self):
         import fixtures.ext
 
         with self.assertRaises(fixtures.ext.ExtensionRegistered):
-            self.proj.add_extension(fixtures.ext)
+            self.proj.register_extension(fixtures.ext)
 
         self.assertIn('ext', self.proj.extensions)
 
         with self.assertRaises(LookupError):
-            self.proj.add_extension(fixtures.ext)
+            self.proj.register_extension(fixtures.ext)
 
-    def test_add_extension_invalid(self):
+    def test_register_extension_invalid(self):
         ext = {'register': lambda: None}
         with self.assertRaises(ValueError):
-            self.proj.add_extension(ext)
+            self.proj.register_extension(ext)
 
     def test_add_builder_basestring(self):
         self.proj.add_builder('test', lambda: None)

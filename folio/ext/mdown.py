@@ -58,7 +58,7 @@ class MarkdownBuilder(object):
         return '.'.join([name, 'html'])
 
     def parse(self, filename):
-        """Parse the given filename with markdown and return a touple with the
+        """Parse the given filename with markdown and return a tuple with the
         content HTML.
 
         :param filename: The file to parse."""
