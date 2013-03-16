@@ -429,7 +429,7 @@ class Folio(object):
             proj.add_context('index.html', {'name': 'Juan', 'files': [])
             proj.add_context('index.html', lambda env: {'name': 'Flor'})
             proj.get_context('index.html')
-            # Returns {'name': 'Flor', 'files': [])
+            # Returns {'name': 'Flor', 'files': []}
 
         :param template_name: The template name to retrieve the context.
         """
