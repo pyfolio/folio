@@ -57,3 +57,15 @@ For example:
     proj.add_context('index.html', lambda env: {'name': 'Flor'})
 
 Will generate the context ``{'name': 'Flor', 'files': []}``.
+
+The templates names could be matched with a file name pattern. This is very
+useful, for example, to add a context to all the templates (that maybe is used
+in the layout template and not in each template *per se*)::
+
+    @proj.context('*')
+    def add_nav(jinja_env):
+        links = [('Home', 'index.html'),
+                 ('Downloads', 'download.html')]
+        return {'nav': links}
+
+The matching is done by the module :mod:`fnmatch`.
