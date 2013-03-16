@@ -157,13 +157,13 @@ class Folio(object):
         if self.config_initialized:
             return
 
-        # Register jinja extensions.
-        for jinja_extension in self.config.get('JINJA_EXTENSIONS', []):
-            self.env.add_extension(jinja_extension)
-
         # Register extensions.
         for extension in self.config.get('EXTENSIONS', []):
             self.register_extension(extension)
+
+        # Register jinja extensions.
+        for jinja_extension in self.config.get('JINJA_EXTENSIONS', []):
+            self.env.add_extension(jinja_extension)
 
         self.config_initialized = True
 
