@@ -157,6 +157,7 @@ class Folio(object):
                           extensions=extensions)
         env.globals.update({
             'config': self.config,
+            'version': __version__,
         })
 
         return env
