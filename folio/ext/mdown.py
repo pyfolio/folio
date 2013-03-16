@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 """
     Folio extension that uses python markdown to parse templates.
+    
+    This extension add a builder that parse text files using markdown_ package
+    and generate a given template with the `content` variable filled with the
+    generated HTML.
+    
+    .. _markdown: https://pypi.python.org/pypi/Markdown/
+    
+    :param MARKDOWN_TEMPLATE: The template to generate with the `content`
+                              variable. Defaults to "_markdown.html".
+    :param MARKDOWN_EXTENSIONS: Extra extensions to be passed to markdown.
+    :param MARKDOWN_BUILDER_PATTERNS: Filename patterns that will be assigned
+                                      to the builder.
 """
 
 from __future__ import with_statement
