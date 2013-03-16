@@ -186,6 +186,11 @@ class Folio(object):
         """Add an extension to the registry."""
         self.config.get('EXTENSIONS', []).append(extension)
 
+        # If the configuration was already initialized, we register the
+        # extension automatically.
+        if self.config_initialized:
+            self.register_extension(extension)
+
     def register_extension(self, extension):
         """Registers a new extension.
 
