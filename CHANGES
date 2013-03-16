@@ -1,6 +1,12 @@
 Changes in Folio
 ================
 
+* Add :meth:`folio.Folio.register_extension`. The method
+  :meth:`folio.Folio.add_extension` will only add it the the `EXTENSIONS` list
+  in the configuration. The extensions will be registered the first time
+  :meth:`folio.Folio.build` is called within the method
+  :meth:`folio.Folio.init_config`.
+
 Version 0.2
 -----------
 
