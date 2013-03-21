@@ -4,8 +4,26 @@ import os
 import folio
 import unittest
 
+from shutil import rmtree
+from tempfile import mkdtemp
+from filecmp import dircmp
+
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURES_DIR = os.path.join(CURRENT_DIR, 'fixtures')
+SOURCE_DIR = os.path.join(FIXTURES_DIR, 'src')
+
 
 class FolioTestCase(unittest.TestCase):
+
+    def assertDirEquals(self, dcmp):
+        """Assert that a directory compare has no differences."""
+
+        self.assertEquals([], dcmp.left_only)
+        self.assertEquals([], dcmp.right_only)
+
+        for subdcmp in dcmp.subdirs.values():
+            self.assertDirEquals(subdcmp)
 
     def _create_folio(self, **kwargs):
         proj = folio.Folio(__name__, **kwargs)
@@ -44,6 +62,16 @@ class FolioTestCase(unittest.TestCase):
         ext = {'register': lambda: None}
         with self.assertRaises(ValueError):
             self._create_folio().register_extension(ext)
+
+    def test_build(self):
+        outdir= mkdtemp()
+
+        proj = self._create_folio(source_path=SOURCE_DIR, build_path=outdir)
+        proj.build()
+
+        self.assertDirEquals(dircmp(SOURCE_DIR, outdir))
+
+        rmtree(outdir)
 
     def test_add_builder_basestring(self):
         proj = self._create_folio()
