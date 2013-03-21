@@ -16,14 +16,14 @@ SOURCE_DIR = os.path.join(FIXTURES_DIR, 'src')
 
 class FolioTestCase(unittest.TestCase):
 
-    def assertDirEquals(self, dcmp):
+    def assertDirEqual(self, dcmp):
         """Assert that a directory compare has no differences."""
 
         self.assertEquals([], dcmp.left_only)
         self.assertEquals([], dcmp.right_only)
 
         for subdcmp in dcmp.subdirs.values():
-            self.assertDirEquals(subdcmp)
+            self.assertDirEqual(subdcmp)
 
     def _create_folio(self, **kwargs):
         proj = folio.Folio(__name__, **kwargs)
@@ -69,7 +69,7 @@ class FolioTestCase(unittest.TestCase):
         proj = self._create_folio(source_path=SOURCE_DIR, build_path=outdir)
         proj.build()
 
-        self.assertDirEquals(dircmp(SOURCE_DIR, outdir))
+        self.assertDirEqual(dircmp(SOURCE_DIR, outdir))
 
         rmtree(outdir)
 
