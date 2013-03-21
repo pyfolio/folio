@@ -16,7 +16,7 @@ SOURCE_DIR = os.path.join(FIXTURES_DIR, 'src')
 
 class FolioTestCase(unittest.TestCase):
 
-    def assertDirEqual(self, dcmp):
+    def assertDirEqual(self, dcmp, msg=None):
         """Assert that a directory compare has no differences."""
 
         self.assertEquals([], dcmp.left_only)
@@ -24,6 +24,14 @@ class FolioTestCase(unittest.TestCase):
 
         for subdcmp in dcmp.subdirs.values():
             self.assertDirEqual(subdcmp)
+
+    def assertFileEqual(self, expected, filename, msg=None):
+        """Assert that a file contains the expected text."""
+
+        with open(filename, 'r') as f:
+            actual = f.read()
+
+        self.assertEquals(expected, actual)
 
     def _create_folio(self, **kwargs):
         proj = folio.Folio(__name__, **kwargs)
@@ -69,7 +77,12 @@ class FolioTestCase(unittest.TestCase):
         proj = self._create_folio(source_path=SOURCE_DIR, build_path=outdir)
         proj.build()
 
+        helloworld = """<!doctype html>
+<title>Hello from Folio</title>
+Hello World!"""
+
         self.assertDirEqual(dircmp(SOURCE_DIR, outdir))
+        self.assertFileEqual(helloworld, os.path.join(outdir, 'helloworld.html'))
 
         rmtree(outdir)
 
