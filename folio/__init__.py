@@ -167,13 +167,14 @@ class Folio(object):
 
         self.config_initialized = True
 
-    def _create_jinja_loader(self):
+    @lazy_property
+    def jinja_loader(self):
         """Create a Jinja loader."""
         return FileSystemLoader(searchpath=self.source_path)
 
     def _create_jinja_environment(self, extensions):
         """Create a Jinja environment."""
-        env = Environment(loader=self._create_jinja_loader(),
+        env = Environment(loader=self.jinja_loader,
                           extensions=extensions)
         env.globals.update({
             'config': self.config,
