@@ -9,7 +9,7 @@ import shutil
 import fnmatch
 import logging
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, ChoiceLoader, FileSystemLoader
 
 from .helpers import lazy_property
 
@@ -170,7 +170,9 @@ class Folio(object):
     @lazy_property
     def jinja_loader(self):
         """Create a Jinja loader."""
-        return FileSystemLoader(searchpath=self.source_path)
+        return ChoiceLoader([
+            FileSystemLoader(searchpath=self.source_path)
+        ])
 
     def _create_jinja_environment(self, extensions):
         """Create a Jinja environment."""
