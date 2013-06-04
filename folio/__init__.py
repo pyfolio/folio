@@ -161,7 +161,7 @@ class Folio(object):
         for extension in self.config.get('EXTENSIONS', []):
             self.register_extension(extension)
 
-        # Register jinja extensions.
+        # Register Jinja extensions.
         for jinja_extension in self.config.get('JINJA_EXTENSIONS', []):
             self.env.add_extension(jinja_extension)
 
@@ -311,6 +311,11 @@ class Folio(object):
         #: not actually a jinja template but another format that you need to
         #: open and process.
         src = os.path.join(self.source_path, template_name)
+
+        # If the template is not in the src directory, it has to be inside a
+        # theme. So we tried to load it from the ChoiceLoader.
+        if not os.path.exists(src):
+            src = self.jinja_loader.get_source(self.env, template_name)[1]
 
         try:
             # Maybe the builder is an instance of class and has a method for
