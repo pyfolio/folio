@@ -11,8 +11,10 @@ import os
 
 from folio.helpers import lazy_property
 
-from jinja2 import BaseLoader, TemplateNotFound, FileSystemLoader
+from jinja2 import BaseLoader, FileSystemLoader
 
+
+__all__ = ['Theme', 'ThemeManager', 'ThemeTemplateLoader']
 
 THEME = 'basic'
 THEMES_PATHS = ['themes']
