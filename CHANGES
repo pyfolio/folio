@@ -6,6 +6,7 @@ Changes in Folio
   in the configuration. The extensions will be registered the first time
   :meth:`folio.Folio.build` is called within the method
   :meth:`folio.Folio.init_config`.
+* Create the extension :mod:`folio.ext.themes`.
 
 Version 0.2
 -----------
