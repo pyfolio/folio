@@ -362,7 +362,7 @@ class Folio(object):
             except TypeError:
                 raise TypeError('The pattern is not a string, nor iterable.')
             for item in iterator:
-                self.builders.append((item, builder))
+                self.add_builder(item, builder)
 
     def get_builder(self, template_name):
         """Returns the builder for the given template name or None if there are
@@ -424,7 +424,7 @@ class Folio(object):
             except TypeError:
                 raise TypeError('The pattern is not a string, nor iterable.')
             for item in iterator:
-                self.contexts.append((item, context))
+                self.add_context(item, context)
 
     def get_context(self, template_name):
         """Returns a context for the given template. If more that one context
