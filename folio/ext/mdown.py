@@ -20,6 +20,7 @@ from __future__ import with_statement
 import os
 import markdown
 
+
 __all__ = ['MarkdownBuilder']
 
 DEFAULT_TEMPLATE = '_markdown.html'

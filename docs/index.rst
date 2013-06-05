@@ -22,6 +22,14 @@ Documentation
 
    changes
 
+Extensions
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   extensions/markdown
+
 Indices and tables
 ==================
 
