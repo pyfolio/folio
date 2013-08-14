@@ -5,6 +5,7 @@
 
 build/
 dist/
+venv/
 
 # Coverage
 .coverage
