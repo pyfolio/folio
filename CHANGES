@@ -1,6 +1,9 @@
 Changes in Folio
 ================
 
+Version 0.3
+-----------
+
 * Add :meth:`folio.Folio.register_extension`. The method
   :meth:`folio.Folio.add_extension` will only add it the the `EXTENSIONS` list
   in the configuration. The extensions will be registered the first time
