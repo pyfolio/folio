@@ -9,15 +9,13 @@ except ImportError:
     print('\n*** setuptools not found! Falling back to distutils\n\n')
     from distutils.core import setup
 
-from folio import __version__
-
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
 setup(name='Folio',
-      version=__version__,
+      version='0.3',
       author='Juan M Martínez',
       author_email='jm@guide42.com',
       description='A Pythonic static website generator based on Jinja2.',
