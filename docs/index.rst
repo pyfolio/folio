@@ -29,6 +29,7 @@ Extensions
    :maxdepth: 1
 
    extensions/markdown
+   extensions/themes
 
 Indices and tables
 ==================
