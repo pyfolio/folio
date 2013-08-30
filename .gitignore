@@ -3,6 +3,7 @@
 *.egg
 *.egg-info
 
+docs/_build/
 build/
 dist/
 venv/
