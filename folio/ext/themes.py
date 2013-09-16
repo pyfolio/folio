@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     Theming support for Folio.
-    
+
     :param THEME: The active theme name. Defaults to 'basic'.
     :param THEMES_PATHS: A list of directories where the themes could be
                          defined.

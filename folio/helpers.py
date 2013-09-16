@@ -3,6 +3,7 @@
     Helpers for Folio.
 """
 
+
 class lazy_property(object):
     def __init__(self, fget):
         self.__name__ = fget.__name__
