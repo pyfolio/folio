@@ -15,7 +15,7 @@ def read(fname):
 
 
 setup(name='Folio',
-      version='0.3',
+      version='0.4',
       author='Juan M Martínez',
       author_email='jm@guide42.com',
       description='A Pythonic static website generator based on Jinja2.',

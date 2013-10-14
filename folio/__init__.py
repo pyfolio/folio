@@ -17,7 +17,7 @@ from .builders import static_builder, template_builder
 from .helpers import lazy_property
 
 __all__ = ['Folio']
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class Folio(object):

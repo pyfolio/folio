@@ -1,6 +1,9 @@
 Changes in Folio
 ================
 
+Version 0.4
+-----------
+
 * Recreate `mdown` extension as `mdwnbuilder` using new
   :class:`folio.builders.Wrapper` class.
 * Builders can have an attribute `enable`.
