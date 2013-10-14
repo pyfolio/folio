@@ -11,7 +11,7 @@
     :param MARKDOWN_TEMPLATE: The template to generate with the `content`
                               variable. Defaults to "_markdown.html".
     :param MARKDOWN_VARIABLE: The variable name.
-s    :param MARKDOWN_BUILDER_PATTERNS: Filename patterns that will be assigned
+    :param MARKDOWN_BUILDER_PATTERNS: Filename patterns that will be assigned
                                        to the builder.
 """
 
