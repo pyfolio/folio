@@ -64,9 +64,6 @@ class Folio(object):
         #: debugging information.
         self.import_name = import_name
 
-        #: The project logger, an instance of the :class: `logging.Logger`.
-        self.logger = logging.getLogger(self.import_name)
-
         #: Make the configuration dictionary.
         self.config = self._create_config()
         self.config_initialized = False
@@ -139,6 +136,21 @@ class Folio(object):
         if module is not None and hasattr(module, '__file__'):
             return os.path.abspath(os.path.dirname(module.__file__))
         return os.getcwd()
+
+    @lazy_property
+    def logger(self):
+        """The project logger, an instance of the :class: `logging.Logger`.
+
+        The default configuration is to log to stderr if the application is
+        in debug mode.
+        """
+        logger = logging.getLogger(self.import_name)
+
+        if self.config['DEBUG']:
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(logging.StreamHandler())
+
+        return logger
 
     def _make_abspath(self, path):
         """Make a path absolute. If the given path is relative, it will be
