@@ -1,6 +1,12 @@
 Changes in Folio
 ================
 
+* Make :attr:`folio.Folio.logger` a lazy property that will print to stderr
+  when running in debug mode.
+* The defaults builder will be only be added when no builders are added. The
+  patterns are configurable with the keys `STATIC_BUILDER_PATTERN` and
+  `TEMPLATE_BUILDER_PATTERN`.
+
 Version 0.3
 -----------
 
