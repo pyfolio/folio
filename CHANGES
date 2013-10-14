@@ -1,6 +1,8 @@
 Changes in Folio
 ================
 
+* Recreate `mdown` extension as `mdwnbuilder` using new
+  :class:`folio.builders.Wrapper` class.
 * Builders can have an attribute `enable`.
 * Make :attr:`folio.Folio.logger` a lazy property that will print to stderr
   when running in debug mode.

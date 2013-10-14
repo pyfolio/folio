@@ -10,17 +10,17 @@ Configuration
 -------------
 
 :MARKDOWN_TEMPLATE: The template to generate with the `content` variable.
-:MARKDOWN_EXTENSIONS: Extra extensions to be passed to markdown.
+:MARKDOWN_VARIABLE: The name of the `content` variable.
 :MARKDOWN_BUILDER_PATTERNS: Filename patterns that to be passed to the builder.
 
 Builder
 -------
 
 The markdown builder can be registered as a normal builder. Just need to
-make an instance the class :class:`folio.ext.mdown.MarkdownBuilder` with a base
-template and assign it to a pattern in your project::
+make an instance the class :class:`folio.ext.mdwnbuilder.MarkdownBuilder` with
+a base template and assign it to a pattern in your project::
 
-    from folio.ext.mdown import MarkdownBuilder
+    from folio.ext.mdwnbuilder import MarkdownBuilder
     proj.add_builder('*.md', MarkdownBuilder('_base.html'))
 
 In this case, all the files with `md` extension will be parsed as a markdown
@@ -33,9 +33,6 @@ An minimal `_base.html` could be:
 
     <!doctype html>
     <article>{{ content }}</article>
-
-To enable some markdown extensions you can pass a list to `markdown_extensions`
-in the :class:`folio.ext.mdown.MarkdownBuilder` class.
 
 Dependencies
 ------------
