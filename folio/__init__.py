@@ -5,7 +5,6 @@
 
 import os
 import sys
-import shutil
 import fnmatch
 import logging
 
@@ -14,6 +13,7 @@ if sys.version > '3':
 
 from jinja2 import Environment, ChoiceLoader, FileSystemLoader
 
+from .builders import static_builder, template_builder
 from .helpers import lazy_property
 
 __all__ = ['Folio']
@@ -112,7 +112,7 @@ class Folio(object):
         #: The default builder is given, this will treat all HTML files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
-        self.builders = [('*', _static_builder), ('*.html', _template_builder)]
+        self.builders = [('*', static_builder), ('*.html', template_builder)]
 
         #: The jinja environment is used to make a list of the templates, and
         #: it's used by the builders to dump output files.
@@ -473,12 +473,3 @@ class Folio(object):
             self.add_context(pattern, func)
             return func
         return wrapper
-
-
-def _static_builder(env, template_name, context, src, dst, encoding):
-    shutil.copy(src, dst)
-
-
-def _template_builder(env, template_name, context, src, dst, encoding):
-    template = env.get_template(template_name)
-    template.stream(**context).dump(dst, encoding=encoding)

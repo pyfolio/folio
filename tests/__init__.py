@@ -115,8 +115,8 @@ Hello World!"""
         static_builder = proj.get_builder('*')
         template_builder = proj.get_builder('*.html')
 
-        self.assertEquals(folio._static_builder, static_builder)
-        self.assertEquals(folio._template_builder, template_builder)
+        self.assertEquals(folio.builders.static_builder, static_builder)
+        self.assertEquals(folio.builders.template_builder, template_builder)
 
     def test_get_builder_not_found(self):
         proj = self._create_folio()
