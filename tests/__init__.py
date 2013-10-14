@@ -39,14 +39,6 @@ class FolioTestCase(unittest.TestCase):
 
         return proj
 
-    def test_default_builders(self):
-        expected = ['*', '*.html']
-        actual = [pattern for pattern, _ in self._create_folio().builders]
-
-        # Compare only the patterns because the implementation of the builder
-        # can change with the time.
-        self.assertSequenceEqual(expected, actual)
-
     def test_import_path(self):
         cwd = os.path.abspath(os.path.dirname(__file__))
         msg = 'Import path must be the absolute path of directory where the' \
@@ -110,13 +102,12 @@ Hello World!"""
             self._create_folio().add_builder(lambda: None, lambda: None)
 
     def test_get_builder(self):
+        builder = lambda: None
+
         proj = self._create_folio()
+        proj.builders = [('*', builder)]
 
-        static_builder = proj.get_builder('*')
-        template_builder = proj.get_builder('*.html')
-
-        self.assertEquals(folio.builders.static_builder, static_builder)
-        self.assertEquals(folio.builders.template_builder, template_builder)
+        self.assertEquals(builder, proj.get_builder('*'))
 
     def test_get_builder_not_found(self):
         proj = self._create_folio()

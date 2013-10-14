@@ -51,6 +51,9 @@ class Folio(object):
         'TESTING':                              False,
         'EXTENSIONS':                           [],
         'JINJA_EXTENSIONS':                     [],
+
+        'STATIC_BUILDER_PATTERN':               '*',
+        'TEMPLATE_BUILDER_PATTERN':             '*.html',
     }
 
     def __init__(self, import_name, source_path='src', build_path='build',
@@ -112,7 +115,7 @@ class Folio(object):
         #: The default builder is given, this will treat all HTML files as
         #: jinja2 templates and process them, generating the same template name
         #: as output file in the build directory.
-        self.builders = [('*', static_builder), ('*.html', template_builder)]
+        self.builders = []
 
         #: The jinja environment is used to make a list of the templates, and
         #: it's used by the builders to dump output files.
@@ -159,6 +162,12 @@ class Folio(object):
 
         if self.config_initialized:
             return
+
+        if not self.builders:
+            self.add_builder(self.config['STATIC_BUILDER_PATTERN'],
+                             static_builder)
+            self.add_builder(self.config['TEMPLATE_BUILDER_PATTERN'],
+                             template_builder)
 
         # Register extensions.
         for extension in self.config.get('EXTENSIONS', []):
