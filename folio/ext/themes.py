@@ -8,10 +8,14 @@
 """
 
 import os
+import sys
 
-from folio.helpers import lazy_property
+if sys.version > '3':
+    basestring = str
 
 from jinja2 import BaseLoader, FileSystemLoader
+
+from folio.helpers import lazy_property
 
 
 __all__ = ['Theme', 'ThemeManager', 'ThemeTemplateLoader']
@@ -80,7 +84,7 @@ class ThemeManager(object):
 
 
 class ThemeTemplateLoader(BaseLoader):
-    """Load templates of the themes controled by the given theme manager."""
+    """Load templates of the themes controlled by the given theme manager."""
 
     def __init__(self, manager):
         BaseLoader.__init__(self)
@@ -117,7 +121,7 @@ def register(folio):
 
     #: The theme template loader it's for loading specific templates in a
     #: theme. This is useful for example when you have a file `src/style.css`
-    #: that inside you whant to include the `themes/basic/style.css`. You need
+    #: that inside you want to include the `themes/basic/style.css`. You need
     #: to use the method :meth:`folio.ext.themes.ThemeManager.get_template`
     #: that is available as `theme` in jinja.
     loader = ThemeTemplateLoader(manager)
