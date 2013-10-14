@@ -379,6 +379,12 @@ class Folio(object):
         if not callable(builder):
             raise TypeError('Invalid builder. Must be a callable.')
         if isinstance(pattern, basestring):
+            try:
+                enabled = builder.enabled
+            except AttributeError:
+                enabled = True
+            if not enabled:
+                self.logger.warning('Builder %s disabled', repr(builder))
             self.builders.append((pattern, builder))
         else:
             try:
@@ -396,7 +402,12 @@ class Folio(object):
         """
         for pattern, builder in reversed(self.builders):
             if fnmatch.fnmatch(template_name, pattern):
-                return builder
+                try:
+                    enabled = builder.enabled
+                except AttributeError:
+                    enabled = True
+                if enabled:
+                    return builder
         return None
 
     def translate_template_name(self, template_name):

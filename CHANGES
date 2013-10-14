@@ -1,6 +1,7 @@
 Changes in Folio
 ================
 
+* Builders can have an attribute `enable`.
 * Make :attr:`folio.Folio.logger` a lazy property that will print to stderr
   when running in debug mode.
 * The defaults builder will be only be added when no builders are added. The
