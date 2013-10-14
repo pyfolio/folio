@@ -9,6 +9,9 @@ import shutil
 import fnmatch
 import logging
 
+if sys.version > '3':
+    basestring = str
+
 from jinja2 import Environment, ChoiceLoader, FileSystemLoader
 
 from .helpers import lazy_property
