@@ -1,6 +1,13 @@
 Installation
 ============
 
+Dependencies
+------------
+
+Folio depends on `Jinja2 <http://jinja.pocoo.org/2/>`_ for rendering templates.
+
+Some extensions need aditional packages.
+
 Official release
 ----------------
 
@@ -53,8 +60,3 @@ provided.
     $ python setup.py develop
 
 .. _`Github mirror`: https://github.com/guide42/folio
-
-Dependencies
-============
-
-Folio depends on `Jinja2 <http://jinja.pocoo.org/2/>`_ for rendering templates.
