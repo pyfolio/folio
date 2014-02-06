@@ -36,7 +36,7 @@ Finally you run this command with root privileges::
 
     $ python setup.py install
 
-.. _download: http://pyfolio.org/download.html
+.. _download: https://pypi.python.org/pypi/Folio
 .. _`7-zip`: http://www.7-zip.org/
 
 Latest development version
